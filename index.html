@@ -69,8 +69,21 @@
                         <a href="#" class="nav-item" data-section="1">About</a>
                         <a href="#" class="nav-item" data-section="2">Contact</a>
                     </div>
-            <button class="nav-cta" onclick="navigateToSection(2)">Get Consultation</button>
+            <button class="nav-cta">Get Consultation</button>
         </nav>
+
+        <!-- Mobile Navigation Indicators -->
+        <div class="mobile-nav-indicators">
+            <div class="nav-indicator active" data-section="0"></div>
+            <div class="nav-indicator" data-section="1"></div>
+            <div class="nav-indicator" data-section="2"></div>
+        </div>
+
+        <!-- Mobile Scroll Hint -->
+        <div class="mobile-scroll-hint">
+            <div class="scroll-arrow">↓</div>
+            <span>Scroll to explore</span>
+        </div>
 
         <!-- Horizontal Container -->
         <div class="horizontal-wrapper" id="horizontalWrapper">
@@ -114,8 +127,8 @@
                                 We help companies accelerate processes and transform operations through advanced AI solutions and strategic consulting.
                             </p>
                             <div class="hero-actions">
-                                <button class="btn-primary" onclick="navigateToSection(2)">Get Started</button>
-                                <button class="btn-secondary" onclick="navigateToSection(1)">Learn More</button>
+                                <button class="btn-primary">Get Started</button>
+                                <button class="btn-secondary">Learn More</button>
                             </div>
                         </div>
                         <div class="hero-visual">
@@ -268,14 +281,14 @@
                         </div>
                         
                         <div class="contact-form-wrapper">
-                            <form class="contact-form" id="contactForm">
+                            <form class="contact-form" id="contactForm" lang="en">
                                 <h3>Get in Touch</h3>
                                 <div class="form-grid-compact">
-                                    <input type="text" name="firstName" placeholder="First Name *" required>
-                                    <input type="text" name="lastName" placeholder="Last Name *" required>
-                                    <input type="email" name="email" placeholder="Business Email *" required class="full-width">
-                                    <input type="text" name="company" placeholder="Company Name *" required class="full-width">
-                                    <textarea name="message" rows="3" placeholder="Tell us about your project..." required class="full-width"></textarea>
+                                    <input type="text" name="firstName" placeholder="First Name *" required lang="en" title="Please enter your first name">
+                                    <input type="text" name="lastName" placeholder="Last Name *" required lang="en" title="Please enter your last name">
+                                    <input type="email" name="email" placeholder="Business Email *" required class="full-width" lang="en" title="Please enter your email address">
+                                    <input type="text" name="company" placeholder="Company Name *" required class="full-width" lang="en" title="Please enter your company name">
+                                    <textarea name="message" rows="3" placeholder="Tell us about your project..." required class="full-width" lang="en" title="Please tell us about your project"></textarea>
                                 </div>
                                 <button type="submit" class="btn-primary submit-btn">Send Message</button>
                             </form>
