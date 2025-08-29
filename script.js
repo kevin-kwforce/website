@@ -4,7 +4,6 @@ const totalSections = 3;
 let isTransitioning = false;
 let loadingComplete = false;
 let isMobileDevice = false;
-let mobileMenuOpen = false;
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
@@ -148,18 +147,20 @@ function initializeNavigation() {
     navItems.forEach((item, index) => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
+            
             if (!isTransitioning && loadingComplete) {
-                goToSection(index);
+                const sectionIndex = parseInt(this.getAttribute('data-section')) || index;
+                goToSection(sectionIndex);
             }
         });
     });
     
-    // CTA button - go to contact
+    // CTA button - go to contact form (Get Consultation)
     if (navCta) {
         navCta.addEventListener('click', function(e) {
             e.preventDefault();
             console.log('Nav CTA clicked, isMobileDevice:', isMobileDevice);
-            goToSection(2); // Contact section (index 2)
+            goToSection(2); // Contact section (index 2) - goes to form
         });
     }
     
@@ -195,8 +196,17 @@ function initializeNavigation() {
         
         // Update wrapper position - adaptive for mobile/desktop
         if (isMobileDevice) {
-            const translateY = -sectionIndex * 100;
-            wrapper.style.transform = `translateY(${translateY}vh)`;
+            // On mobile, just scroll to the section smoothly
+            const sections = document.querySelectorAll('.h-section');
+            if (sections[sectionIndex]) {
+                const targetSection = sections[sectionIndex];
+                const offsetTop = targetSection.offsetTop;
+                
+                document.querySelector('.main-content').scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
         } else {
             const translateX = -sectionIndex * 100;
             wrapper.style.transform = `translateX(${translateX}vw)`;
@@ -213,9 +223,11 @@ function initializeNavigation() {
             indicator.classList.toggle('active', index === sectionIndex);
         });
         
-        // Close mobile menu if open
-        if (isMobileDevice && mobileMenuOpen) {
-            closeMobileMenu();
+        // Hide scroll hint when reaching contact section (section 2) in mobile
+        if (isMobileDevice && sectionIndex === 2) {
+            document.body.classList.add('at-contact-section');
+        } else if (isMobileDevice) {
+            document.body.classList.remove('at-contact-section');
         }
         
         // Reset transition flag
@@ -464,111 +476,34 @@ function initializeFloatingNavigation() {
 function initializeMobileOptimizations() {
     if (!isMobileDevice) return;
     
-    // Create mobile menu toggle
-    createMobileMenuToggle();
-    
     // Modify touch navigation for vertical scrolling
     modifyTouchNavigation();
     
     // Add mobile-specific styles
     addMobileStyles();
     
-    // Add outside click handler
-    addMobileMenuOutsideClickHandler();
-}
-
-function createMobileMenuToggle() {
-    const bottomNav = document.querySelector('.bottom-nav');
-    const navMenu = document.querySelector('.nav-menu');
-    
-    console.log('Creating mobile menu toggle:', {
-        bottomNav: !!bottomNav,
-        navMenu: !!navMenu,
-        isMobileDevice: isMobileDevice
-    });
-    
-    if (!bottomNav || !navMenu) {
-        console.error('Cannot create mobile menu toggle - missing elements');
-        return;
-    }
-    
-    // Check if hamburger button already exists
-    if (document.querySelector('.mobile-menu-toggle')) {
-        console.log('Mobile menu toggle already exists');
-        return;
-    }
-    
-    // Create hamburger button
-    const hamburgerBtn = document.createElement('button');
-    hamburgerBtn.className = 'mobile-menu-toggle';
-    hamburgerBtn.innerHTML = `
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-    `;
-    
-    // Insert hamburger button
-    bottomNav.insertBefore(hamburgerBtn, navMenu);
-    
-    // Add click handler
-    hamburgerBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Hamburger button clicked');
-        toggleMobileMenu();
-    });
-    
-    console.log('Mobile menu toggle created successfully');
-}
-
-function toggleMobileMenu() {
-    const navMenu = document.querySelector('.nav-menu');
-    const hamburgerBtn = document.querySelector('.mobile-menu-toggle');
-    
-    console.log('toggleMobileMenu called:', {
-        navMenu: !!navMenu,
-        hamburgerBtn: !!hamburgerBtn,
-        isMobileDevice: isMobileDevice,
-        currentMenuOpen: mobileMenuOpen
-    });
-    
-    mobileMenuOpen = !mobileMenuOpen;
-    
-    if (mobileMenuOpen) {
-        navMenu.classList.add('mobile-menu-open');
-        hamburgerBtn.classList.add('active');
-        document.body.classList.add('menu-open');
-        console.log('Menu opened - classes added');
-    } else {
-        closeMobileMenu();
-        console.log('Menu closed');
-    }
-}
-
-function closeMobileMenu() {
-    const navMenu = document.querySelector('.nav-menu');
-    const hamburgerBtn = document.querySelector('.mobile-menu-toggle');
-    
-    mobileMenuOpen = false;
-    navMenu.classList.remove('mobile-menu-open');
-    hamburgerBtn.classList.remove('active');
-    document.body.classList.remove('menu-open');
-    console.log('Menu closed - classes removed');
-}
-
-// Add click handler to close menu when clicking outside
-function addMobileMenuOutsideClickHandler() {
-    document.addEventListener('click', function(e) {
-        if (mobileMenuOpen && isMobileDevice) {
-            const navMenu = document.querySelector('.nav-menu');
-            const hamburgerBtn = document.querySelector('.mobile-menu-toggle');
+    // Check initial position for scroll hint
+    setTimeout(() => {
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            const scrollTop = mainContent.scrollTop;
+            const clientHeight = mainContent.clientHeight;
+            const scrollHeight = mainContent.scrollHeight;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
             
-            // Close menu if clicking outside of it
-            if (!navMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-                closeMobileMenu();
+            if (isAtBottom) {
+                document.body.classList.add('at-bottom');
+                console.log('Initial check: Added at-bottom class');
             }
         }
-    });
+    }, 1000);
 }
+
+// Hamburger menu removed for mobile
+
+// Mobile menu functions removed
+
+
 
 function modifyTouchNavigation() {
     // Implement smooth scroll tracking for mobile
@@ -605,6 +540,17 @@ function modifyTouchNavigation() {
                 goToSection(currentSection - 1);
             }
         }
+        
+        // Add momentum scrolling for better mobile experience
+        const velocity = Math.abs(deltaY) / 100; // Calculate swipe velocity
+        if (velocity > 2 && !isEdgeSwipe) {
+            // Fast swipes get momentum scrolling
+            const momentum = Math.min(velocity * 50, 200);
+            mainContent.scrollBy({
+                top: deltaY > 0 ? momentum : -momentum,
+                behavior: 'smooth'
+            });
+        }
     }, { passive: true });
 }
 
@@ -615,10 +561,22 @@ function addMobileStyles() {
         indicator.addEventListener('click', function(e) {
             e.preventDefault();
             if (!isTransitioning && loadingComplete) {
+                // Add visual feedback
+                indicator.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    indicator.style.transform = '';
+                }, 200);
+                
                 goToSection(index);
             }
         });
     });
+    
+    // Add smooth scroll behavior for better mobile experience
+    if (isMobileDevice) {
+        document.documentElement.style.scrollBehavior = 'smooth';
+        document.body.style.scrollBehavior = 'smooth';
+    }
     
     console.log('Mobile optimizations applied');
 }
@@ -638,45 +596,115 @@ function initializeMobileScrollTracking() {
             document.body.classList.add('has-scrolled');
         }
         
+        // Check if user is at the bottom of the page
+        const scrollTop = mainContent.scrollTop;
+        const clientHeight = mainContent.clientHeight;
+        const scrollHeight = mainContent.scrollHeight;
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20; // Increased threshold
+        
+        console.log('Scroll check:', {
+            scrollTop,
+            clientHeight,
+            scrollHeight,
+            isAtBottom,
+            difference: scrollHeight - (scrollTop + clientHeight)
+        });
+        
+        if (isAtBottom) {
+            document.body.classList.add('at-bottom');
+            console.log('Added at-bottom class');
+        } else {
+            document.body.classList.remove('at-bottom');
+        }
+        
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
             updateCurrentSectionFromScroll();
         }, 100);
     }, { passive: true });
+    
+    // Add scrollend event listener for better bottom detection
+    mainContent.addEventListener('scrollend', function() {
+        const scrollTop = mainContent.scrollTop;
+        const clientHeight = mainContent.clientHeight;
+        const scrollHeight = mainContent.scrollHeight;
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
+        
+        if (isAtBottom) {
+            document.body.classList.add('at-bottom');
+            console.log('Scrollend: Added at-bottom class');
+        }
+    }, { passive: true });
 }
 
 function updateCurrentSectionFromScroll() {
     const sections = document.querySelectorAll('.h-section');
-    const scrollTop = document.querySelector('.main-content').scrollTop;
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+    
+    const scrollTop = mainContent.scrollTop;
     const windowHeight = window.innerHeight;
+    const scrollHeight = mainContent.scrollHeight;
     
     let newCurrentSection = 0;
+    let bestMatch = 0;
+    let bestVisibility = 0;
     
     sections.forEach((section, index) => {
         const sectionTop = section.offsetTop;
         const sectionHeight = section.offsetHeight;
+        const sectionBottom = sectionTop + sectionHeight;
         
-        // Check if section is in view (at least 50% visible)
-        if (scrollTop >= sectionTop - windowHeight * 0.5 && 
-            scrollTop < sectionTop + sectionHeight - windowHeight * 0.5) {
+        // Calculate how much of the section is visible
+        const visibleTop = Math.max(0, Math.min(windowHeight, sectionBottom - scrollTop));
+        const visibleBottom = Math.max(0, Math.min(windowHeight, scrollTop + windowHeight - sectionTop));
+        const visibleHeight = Math.min(visibleTop, visibleBottom);
+        const visibility = visibleHeight / Math.min(sectionHeight, windowHeight);
+        
+        // Find the section with the highest visibility
+        if (visibility > bestVisibility) {
+            bestVisibility = visibility;
+            bestMatch = index;
+        }
+        
+        // Also check if we're in the middle of a section
+        const sectionCenter = sectionTop + sectionHeight / 2;
+        const viewportCenter = scrollTop + windowHeight / 2;
+        
+        if (Math.abs(sectionCenter - viewportCenter) < windowHeight * 0.3) {
             newCurrentSection = index;
         }
     });
     
-    if (newCurrentSection !== currentSection) {
-        currentSection = newCurrentSection;
-        
-        // Update navigation indicators
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach((item, index) => {
-            item.classList.toggle('active', index === currentSection);
-        });
-        
-        const indicators = document.querySelectorAll('.nav-indicator');
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === currentSection);
-        });
+    // Use the best match if no clear section center was found
+    if (newCurrentSection === 0 && bestVisibility > 0.3) {
+        newCurrentSection = bestMatch;
     }
+    
+            if (newCurrentSection !== currentSection) {
+            currentSection = newCurrentSection;
+            
+            // Update navigation indicators with smooth transition
+            const navItems = document.querySelectorAll('.nav-item');
+            const indicators = document.querySelectorAll('.nav-indicator');
+            
+            navItems.forEach((item, index) => {
+                item.classList.toggle('active', index === currentSection);
+            });
+            
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSection);
+            });
+            
+            // Hide scroll hint when reaching contact section (section 2)
+            if (currentSection === 2) {
+                document.body.classList.add('at-contact-section');
+            } else {
+                document.body.classList.remove('at-contact-section');
+            }
+            
+            console.log('Section changed to:', currentSection, 'Visibility:', bestVisibility);
+        }
 }
 
 // Smooth scroll to section for mobile
@@ -688,11 +716,18 @@ function scrollToSection(sectionIndex) {
     if (sections[sectionIndex] && mainContent) {
         const targetSection = sections[sectionIndex];
         const offsetTop = targetSection.offsetTop;
+        const windowHeight = window.innerHeight;
         
-        console.log('Scrolling to section', sectionIndex, 'offsetTop:', offsetTop);
+        // Calculate optimal scroll position (center the section)
+        const sectionHeight = targetSection.offsetHeight;
+        const optimalOffset = offsetTop - (windowHeight - sectionHeight) / 2;
+        const finalOffset = Math.max(0, optimalOffset);
         
+        console.log('Scrolling to section', sectionIndex, 'offsetTop:', finalOffset);
+        
+        // Smooth scroll with easing
         mainContent.scrollTo({
-            top: offsetTop,
+            top: finalOffset,
             behavior: 'smooth'
         });
         
@@ -708,6 +743,32 @@ function scrollToSection(sectionIndex) {
         indicators.forEach((indicator, index) => {
             indicator.classList.toggle('active', index === sectionIndex);
         });
+        
+        // Hide scroll hint when reaching contact section (section 2)
+        if (sectionIndex === 2) {
+            document.body.classList.add('at-contact-section');
+        } else {
+            document.body.classList.remove('at-contact-section');
+        }
+        
+        // Add a small delay to prevent scroll tracking conflicts
+        setTimeout(() => {
+            updateCurrentSectionFromScroll();
+            
+            // Check bottom position after scroll
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                const scrollTop = mainContent.scrollTop;
+                const clientHeight = mainContent.clientHeight;
+                const scrollHeight = mainContent.scrollHeight;
+                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
+                
+                if (isAtBottom) {
+                    document.body.classList.add('at-bottom');
+                    console.log('Post-scroll: Added at-bottom class');
+                }
+            }
+        }, 500);
     } else {
         console.log('Section or mainContent not found:', {
             sectionExists: !!sections[sectionIndex],
