@@ -2717,6 +2717,53 @@ html, body {
     margin-top: -3.5rem; /* Move image up more to avoid being cut by bottom menu */
 }
 
+/* Mobile: Increase text size for better readability */
+.mobile-device p,
+.mobile-device .section-subtitle,
+.mobile-device .solution-subtitle,
+.mobile-device .solution-description p,
+.mobile-device .solution-benefits span,
+.mobile-device .solution-highlight,
+.mobile-device .contact-item p,
+.mobile-device .contact-item h4,
+.mobile-device .form-grid-compact label {
+    font-size: 1.1rem !important; /* Larger text for better mobile readability */
+    line-height: 1.6; /* Better line spacing for larger text */
+}
+
+.mobile-device .solution-description p {
+    font-size: 1.15rem !important; /* Slightly larger for solution descriptions */
+    margin-bottom: 1rem; /* Better spacing between paragraphs */
+}
+
+.mobile-device .solution-benefits .benefit {
+    font-size: 1.1rem !important; /* Larger text for benefit items */
+    margin-bottom: 0.5rem; /* Better spacing between benefits */
+}
+
+.mobile-device .solution-highlight {
+    font-size: 1.1rem !important; /* Larger text for highlights */
+    line-height: 1.5; /* Tighter line height for highlights */
+}
+
+/* Mobile: Show concise descriptions for better mobile experience */
+.mobile-device .solution-description .desktop-description {
+    display: none; /* Hide long descriptions on mobile */
+}
+
+.mobile-device .solution-description .mobile-description {
+    display: block; /* Show concise descriptions on mobile */
+}
+
+/* Desktop: Show full descriptions */
+.desktop-description {
+    display: block;
+}
+
+.mobile-description {
+    display: none; /* Hidden by default on desktop */
+}
+
 /* Mobile: Simple body optimization */
 
 .mobile-device input,
