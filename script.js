@@ -240,9 +240,40 @@ function initializeNavigation() {
     function goToSection(sectionIndex) {
         console.log('goToSection called:', sectionIndex, 'isMobileDevice:', isMobileDevice);
         if (isMobileDevice) {
-            scrollToSection(sectionIndex);
+            // On mobile, scroll to the section smoothly
+            currentSection = sectionIndex;
+            
+            // Update navigation indicators
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, index) => {
+                item.classList.toggle('active', index === sectionIndex);
+            });
+            
+            // Scroll to section on mobile
+            scrollToSectionMobile(sectionIndex);
         } else {
             navigateToSection(sectionIndex);
+        }
+    }
+    
+    // Function to scroll to sections on mobile
+    function scrollToSectionMobile(sectionIndex) {
+        const sections = document.querySelectorAll('.h-section');
+        const mainContent = document.querySelector('.main-content');
+        
+        if (sections[sectionIndex] && mainContent) {
+            const targetSection = sections[sectionIndex];
+            const offsetTop = targetSection.offsetTop;
+            
+            console.log('Scrolling to section', sectionIndex, 'offsetTop:', offsetTop);
+            
+            // Smooth scroll to section with offset for better positioning
+            const scrollOffset = offsetTop - 20; // Small offset for better view
+            
+            mainContent.scrollTo({
+                top: Math.max(0, scrollOffset),
+                behavior: 'smooth'
+            });
         }
     }
     
@@ -476,8 +507,11 @@ function initializeFloatingNavigation() {
 function initializeMobileOptimizations() {
     if (!isMobileDevice) return;
     
-    // Modify touch navigation for vertical scrolling
-    modifyTouchNavigation();
+    // Remove section-based navigation for mobile - just use natural scroll
+    removeMobileSectionNavigation();
+    
+    // Hide floating navigation elements on mobile
+    hideFloatingNavigationOnMobile();
     
     // Add mobile-specific styles
     addMobileStyles();
@@ -497,6 +531,37 @@ function initializeMobileOptimizations() {
             }
         }
     }, 1000);
+}
+
+// Remove section-based navigation for mobile
+function removeMobileSectionNavigation() {
+    // Remove mobile navigation indicators
+    const mobileIndicators = document.querySelector('.mobile-nav-indicators');
+    if (mobileIndicators) {
+        mobileIndicators.style.display = 'none';
+    }
+    
+    // Remove scroll-snap behavior
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        mainContent.style.scrollSnapType = 'none';
+        mainContent.style.scrollSnapStop = 'normal';
+    }
+    
+    // Remove section scroll-snap
+    const sections = document.querySelectorAll('.h-section');
+    sections.forEach(section => {
+        section.style.scrollSnapAlign = 'none';
+        section.style.scrollSnapStop = 'normal';
+    });
+}
+
+// Hide floating navigation elements on mobile
+function hideFloatingNavigationOnMobile() {
+    const floatingElements = document.querySelectorAll('.floating-nav');
+    floatingElements.forEach(element => {
+        element.style.display = 'none';
+    });
 }
 
 // Hamburger menu removed for mobile
@@ -581,12 +646,11 @@ function addMobileStyles() {
     console.log('Mobile optimizations applied');
 }
 
-// Mobile smooth scroll tracking
+// Mobile smooth scroll tracking - simplified for continuous scrolling
 function initializeMobileScrollTracking() {
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
     
-    let scrollTimeout;
     let hasScrolled = false;
     
     mainContent.addEventListener('scroll', function() {
@@ -600,15 +664,7 @@ function initializeMobileScrollTracking() {
         const scrollTop = mainContent.scrollTop;
         const clientHeight = mainContent.clientHeight;
         const scrollHeight = mainContent.scrollHeight;
-        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20; // Increased threshold
-        
-        console.log('Scroll check:', {
-            scrollTop,
-            clientHeight,
-            scrollHeight,
-            isAtBottom,
-            difference: scrollHeight - (scrollTop + clientHeight)
-        });
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
         
         if (isAtBottom) {
             document.body.classList.add('at-bottom');
@@ -616,167 +672,12 @@ function initializeMobileScrollTracking() {
         } else {
             document.body.classList.remove('at-bottom');
         }
-        
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            updateCurrentSectionFromScroll();
-        }, 100);
-    }, { passive: true });
-    
-    // Add scrollend event listener for better bottom detection
-    mainContent.addEventListener('scrollend', function() {
-        const scrollTop = mainContent.scrollTop;
-        const clientHeight = mainContent.clientHeight;
-        const scrollHeight = mainContent.scrollHeight;
-        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
-        
-        if (isAtBottom) {
-            document.body.classList.add('at-bottom');
-            console.log('Scrollend: Added at-bottom class');
-        }
     }, { passive: true });
 }
 
-function updateCurrentSectionFromScroll() {
-    const sections = document.querySelectorAll('.h-section');
-    const mainContent = document.querySelector('.main-content');
-    if (!mainContent) return;
-    
-    const scrollTop = mainContent.scrollTop;
-    const windowHeight = window.innerHeight;
-    const scrollHeight = mainContent.scrollHeight;
-    
-    let newCurrentSection = 0;
-    let bestMatch = 0;
-    let bestVisibility = 0;
-    
-    sections.forEach((section, index) => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        const sectionBottom = sectionTop + sectionHeight;
-        
-        // Calculate how much of the section is visible
-        const visibleTop = Math.max(0, Math.min(windowHeight, sectionBottom - scrollTop));
-        const visibleBottom = Math.max(0, Math.min(windowHeight, scrollTop + windowHeight - sectionTop));
-        const visibleHeight = Math.min(visibleTop, visibleBottom);
-        const visibility = visibleHeight / Math.min(sectionHeight, windowHeight);
-        
-        // Find the section with the highest visibility
-        if (visibility > bestVisibility) {
-            bestVisibility = visibility;
-            bestMatch = index;
-        }
-        
-        // Also check if we're in the middle of a section
-        const sectionCenter = sectionTop + sectionHeight / 2;
-        const viewportCenter = scrollTop + windowHeight / 2;
-        
-        if (Math.abs(sectionCenter - viewportCenter) < windowHeight * 0.3) {
-            newCurrentSection = index;
-        }
-    });
-    
-    // Use the best match if no clear section center was found
-    if (newCurrentSection === 0 && bestVisibility > 0.3) {
-        newCurrentSection = bestMatch;
-    }
-    
-            if (newCurrentSection !== currentSection) {
-            currentSection = newCurrentSection;
-            
-            // Update navigation indicators with smooth transition
-            const navItems = document.querySelectorAll('.nav-item');
-            const indicators = document.querySelectorAll('.nav-indicator');
-            
-            navItems.forEach((item, index) => {
-                item.classList.toggle('active', index === currentSection);
-            });
-            
-            indicators.forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === currentSection);
-            });
-            
-            // Hide scroll hint when reaching contact section (section 2)
-            if (currentSection === 2) {
-                document.body.classList.add('at-contact-section');
-            } else {
-                document.body.classList.remove('at-contact-section');
-            }
-            
-            console.log('Section changed to:', currentSection, 'Visibility:', bestVisibility);
-        }
-}
+// Function removed - no longer needed for mobile continuous scrolling
 
-// Smooth scroll to section for mobile
-function scrollToSection(sectionIndex) {
-    console.log('scrollToSection called:', sectionIndex);
-    const sections = document.querySelectorAll('.h-section');
-    const mainContent = document.querySelector('.main-content');
-    
-    if (sections[sectionIndex] && mainContent) {
-        const targetSection = sections[sectionIndex];
-        const offsetTop = targetSection.offsetTop;
-        const windowHeight = window.innerHeight;
-        
-        // Calculate optimal scroll position (center the section)
-        const sectionHeight = targetSection.offsetHeight;
-        const optimalOffset = offsetTop - (windowHeight - sectionHeight) / 2;
-        const finalOffset = Math.max(0, optimalOffset);
-        
-        console.log('Scrolling to section', sectionIndex, 'offsetTop:', finalOffset);
-        
-        // Smooth scroll with easing
-        mainContent.scrollTo({
-            top: finalOffset,
-            behavior: 'smooth'
-        });
-        
-        currentSection = sectionIndex;
-        
-        // Update indicators immediately
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach((item, index) => {
-            item.classList.toggle('active', index === sectionIndex);
-        });
-        
-        const indicators = document.querySelectorAll('.nav-indicator');
-        indicators.forEach((indicator, index) => {
-            indicator.classList.toggle('active', index === sectionIndex);
-        });
-        
-        // Hide scroll hint when reaching contact section (section 2)
-        if (sectionIndex === 2) {
-            document.body.classList.add('at-contact-section');
-        } else {
-            document.body.classList.remove('at-contact-section');
-        }
-        
-        // Add a small delay to prevent scroll tracking conflicts
-        setTimeout(() => {
-            updateCurrentSectionFromScroll();
-            
-            // Check bottom position after scroll
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                const scrollTop = mainContent.scrollTop;
-                const clientHeight = mainContent.clientHeight;
-                const scrollHeight = mainContent.scrollHeight;
-                const isAtBottom = scrollTop + clientHeight >= scrollHeight - 20;
-                
-                if (isAtBottom) {
-                    document.body.classList.add('at-bottom');
-                    console.log('Post-scroll: Added at-bottom class');
-                }
-            }
-        }, 500);
-    } else {
-        console.log('Section or mainContent not found:', {
-            sectionExists: !!sections[sectionIndex],
-            mainContentExists: !!mainContent,
-            totalSections: sections.length
-        });
-    }
-}
+// Function removed - no longer needed for mobile continuous scrolling
 
 // Console branding
 console.log('%c🚀 KWForce Enterprise AI Solutions', 'color: #F0841D; font-size: 20px; font-weight: bold;');

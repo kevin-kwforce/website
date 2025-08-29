@@ -945,6 +945,11 @@ html, body {
     opacity: 1;
 }
 
+/* Hide floating navigation on mobile devices */
+.mobile-device .floating-nav {
+    display: none !important;
+}
+
 
 
 .floating-circle {
@@ -2524,27 +2529,72 @@ html, body {
     height: auto;
     width: 100vw;
     transform: none !important; /* Allow natural scroll on mobile */
+    /* Ensure sections stack vertically */
+    display: flex;
+    flex-direction: column;
 }
 
 .mobile-device .main-content {
     overflow-y: auto;
     height: 100vh;
+    /* Simple mobile scroll */
     scroll-behavior: smooth;
-    scroll-snap-type: y proximity;
-    scroll-snap-stop: always;
-    /* Mejorar suavidad del scroll en móvil */
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-    /* Reducir la intensidad del scroll-snap para movimientos más suaves */
-    scroll-snap-type: y proximity;
-    scroll-snap-stop: always;
 }
 
-.mobile-device .h-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    /* Transiciones suaves para elementos dentro de las secciones */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Mobile: Adjust container for better mobile layout */
+.mobile-device .container {
+    padding: 1rem;
+    max-width: 100%;
+}
+
+.mobile-device .section-header {
+    margin-bottom: 2rem;
+}
+
+.mobile-device .solutions-grid {
+    margin-bottom: 2rem;
+}
+
+.mobile-device .contact-layout {
+    margin-bottom: 2rem;
+}
+
+/* Mobile: Better spacing for contact form */
+.mobile-device .contact-form-wrapper {
+    margin-bottom: 2rem; /* Reduced space before bottom menu */
+}
+
+.mobile-device .contact-form {
+    padding-bottom: 1rem; /* Reduced padding inside form */
+}
+
+/* Mobile: Make form more compact */
+.mobile-device .contact-form h3 {
+    margin-bottom: 1rem; /* Reduce space after title */
+}
+
+.mobile-device .form-grid-compact {
+    gap: 0.75rem; /* Reduce gap between form fields */
+}
+
+.mobile-device .form-grid-compact input,
+.mobile-device .form-grid-compact textarea {
+    padding: 0.75rem; /* Reduce padding inside inputs */
+    margin-bottom: 0.5rem; /* Reduce margin between fields */
+}
+
+.mobile-device .submit-btn {
+    margin-top: 1rem; /* Reduce space before submit button */
+}
+
+/* Mobile: Stack sections vertically instead of horizontally */
+.mobile-device .horizontal-wrapper {
+    flex-direction: column;
+    width: 100vw !important; /* Override the 300vw from desktop */
+    height: auto;
+    /* Simple mobile optimization */
+    transition: none;
 }
 
 .mobile-device .h-section {
@@ -2552,16 +2602,200 @@ html, body {
     height: auto;
     min-height: 100vh;
     position: relative;
+    overflow: visible;
+    /* Simple mobile layout */
+    flex-shrink: 0;
+    /* Ensure sections don't block scroll */
+    pointer-events: none;
+}
+
+/* Mobile: Ensure contact section has proper positioning for scroll layer */
+.mobile-device .h-section[data-section="2"] {
+    position: relative;
+    z-index: 1;
+}
+
+/* Mobile: Simple approach - let everything work normally */
+
+/* Mobile: Ensure contact section elements don't block scroll */
+.mobile-device .contact-layout,
+.mobile-device .contact-info,
+.mobile-device .contact-item,
+.mobile-device .contact-form-wrapper,
+.mobile-device .contact-form {
+    position: relative;
+    z-index: 3; /* Above the scroll layers */
+}
+
+/* Mobile: Simple button styling */
+
+/* Mobile: Simple form styling */
+
+/* Mobile: Simple section optimization */
+
+/* Mobile: Ensure proper spacing between sections */
+.mobile-device .section-header {
+    margin-bottom: 2rem;
+}
+
+.mobile-device .solutions-grid {
+    margin-bottom: 2rem;
+}
+
+.mobile-device .contact-layout {
+    margin-bottom: 2rem;
+}
+
+/* Mobile: Ensure all containers allow scrolling */
+.mobile-device .container,
+.mobile-device .home-content,
+.mobile-device .solutions-grid,
+.mobile-device .contact-layout {
+    /* Ensure these containers don't interfere with scroll */
+    touch-action: pan-y;
+    -webkit-touch-action: pan-y;
+    pointer-events: auto;
+}
+
+/* Mobile: Let all interactive elements work normally */
+
+/* Mobile: Add bottom padding to prevent overlap with menu */
+.mobile-device .main-content {
+    padding-bottom: 60px; /* Reduced space for bottom navigation */
+}
+
+.mobile-device .horizontal-wrapper {
+    padding-bottom: 60px; /* Reduced space at the bottom */
+}
+
+/* Mobile: Ensure bottom navigation is always accessible */
+.mobile-device .bottom-nav {
+    z-index: 3000 !important; /* Highest z-index to stay on top */
+    position: fixed !important; /* Always fixed at bottom */
+}
+
+/* Mobile: Simple navigation styling */
+
+/* Mobile: Force scroll to work in contact section */
+.mobile-device .h-section[data-section="2"] {
+    /* Ensure scroll works everywhere in this section */
+    touch-action: pan-y !important;
+    -webkit-touch-action: pan-y !important;
+    /* Make sure the entire section is scrollable */
+    overflow: visible !important;
+}
+
+/* Mobile: Simple touch optimization */
+.mobile-device * {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile: Simple body optimization */
+
+.mobile-device input,
+.mobile-device textarea,
+.mobile-device button {
+    /* Allow text selection in form elements */
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Mobile: Only disable background decorative elements */
+.mobile-device .algorithm-background,
+.mobile-device .floating-elements,
+.mobile-device .data-flow,
+.mobile-device .code-lines,
+.mobile-device .floating-circle,
+.mobile-device .floating-square,
+.mobile-device .floating-triangle,
+.mobile-device .floating-hexagon,
+.mobile-device .floating-diamond,
+.mobile-device .floating-pentagon,
+.mobile-device .floating-star,
+.mobile-device .floating-octagon,
+.mobile-device .floating-rhombus {
+    pointer-events: none;
+}
+
+/* Mobile: Ensure main content area is always scrollable */
+.mobile-device .main-content {
+    /* Force scrollability */
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* Ensure no interference */
+    pointer-events: auto !important;
+    touch-action: pan-y !important;
+    -webkit-touch-action: pan-y !important;
+}
+
+/* Mobile: Simple scroll optimization */
+.mobile-device .main-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Mobile: Scroll layers removed - using direct element disabling instead */
+
+/* Mobile: Simple body scroll */
+.mobile-device body {
+    overflow: auto;
+}
+
+/* Mobile: Simple solution - make background elements non-interactive */
+.mobile-device .algorithm-background,
+.mobile-device .floating-elements,
+.mobile-device .data-flow,
+.mobile-device .code-lines,
+.mobile-device .floating-circle,
+.mobile-device .floating-square,
+.mobile-device .floating-triangle,
+.mobile-device .floating-hexagon,
+.mobile-device .floating-diamond,
+.mobile-device .floating-pentagon,
+.mobile-device .floating-star,
+.mobile-device .floating-octagon,
+.mobile-device .floating-rhombus {
+    pointer-events: none;
+}
+
+.mobile-device .h-section {
+    /* Remove scroll-snap for continuous scrolling */
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+    /* Transiciones suaves para elementos dentro de las secciones */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-device .h-section {
+    width: 100vw;
+    height: auto;
+    min-height: auto; /* Let content determine height */
+    position: relative;
     overflow-y: visible;
     overflow-x: hidden;
     margin-bottom: 0; /* Remove any gaps between sections */
+    /* Ensure proper content flow */
+    display: block;
 }
 
 /* Asegurar que la sección de home tenga suficiente contenido en móvil */
 .mobile-device .h-section[data-section="0"] {
-    min-height: 120vh; /* Más altura para evitar que se vea vacío */
-    display: flex;
-    align-items: center;
+    min-height: auto; /* Let content determine height */
+    height: auto;
+    display: block; /* Change from flex to block for natural flow */
+    padding-top: 2rem; /* Add some top padding for better spacing */
+}
+
+/* Make all sections flow continuously on mobile */
+.mobile-device .h-section {
+    min-height: auto; /* Let content determine height naturally */
+    height: auto; /* Natural height based on content */
+    padding-bottom: 0; /* Remove spacing between sections for continuous flow */
+    margin-bottom: 0; /* Ensure no gaps */
+    /* Ensure sections flow naturally one after another */
+    display: block;
+    position: relative;
 }
 
 /* Mobile menu styles removed */
@@ -2581,7 +2815,7 @@ html, body {
 }
 
 .mobile-device .mobile-nav-indicators {
-    display: flex;
+    display: none; /* Hide mobile navigation indicators on mobile */
 }
 
 .nav-indicator {
