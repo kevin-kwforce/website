@@ -672,12 +672,79 @@ function initializeMobileScrollTracking() {
         } else {
             document.body.classList.remove('at-bottom');
         }
+        
+        // Update active navigation based on scroll position
+        updateActiveNavigationFromScroll(scrollTop, clientHeight);
     }, { passive: true });
 }
 
-// Function removed - no longer needed for mobile continuous scrolling
-
-// Function removed - no longer needed for mobile continuous scrolling
+// Function to update active navigation based on visible content
+function updateActiveNavigationFromScroll(scrollTop, clientHeight) {
+    if (!isMobileDevice) {
+        console.log('Not mobile device, returning');
+        return;
+    }
+    
+    const navItems = document.querySelectorAll('.nav-item');
+    console.log('Found nav items:', navItems.length);
+    
+    // Check what content is visible in the viewport
+    const heroImage = document.querySelector('.hero-image');
+    const sectionHeader = document.querySelector('.section-header');
+    const contactForm = document.querySelector('.contact-form');
+    
+    console.log('Elements found:', {
+        heroImage: !!heroImage,
+        sectionHeader: !!sectionHeader,
+        contactForm: !!contactForm
+    });
+    
+    let activeSection = 0;
+    
+    if (heroImage) {
+        const imageRect = heroImage.getBoundingClientRect();
+        console.log('Image rect:', imageRect);
+        // If image is visible (not scrolled past it)
+        if (imageRect.bottom > 0 && imageRect.top < clientHeight) {
+            activeSection = 0; // Home - when image_main is visible
+            console.log('Home section active - image visible');
+        }
+    }
+    
+    if (sectionHeader && activeSection === 0) {
+        const headerRect = sectionHeader.getBoundingClientRect();
+        console.log('Header rect:', headerRect);
+        // If we've scrolled past the image and see the section header
+        if (headerRect.top < clientHeight * 0.5) {
+            activeSection = 1; // About - when LLM/Consultancy is visible
+            console.log('About section active - header visible');
+        }
+    }
+    
+    if (contactForm && activeSection !== 0) {
+        const formRect = contactForm.getBoundingClientRect();
+        console.log('Form rect:', formRect);
+        // If we're near the contact form
+        if (formRect.top < clientHeight * 0.7) {
+            activeSection = 2; // Contact - when email/connect/touch is visible
+            console.log('Contact section active - form visible');
+        }
+    }
+    
+    console.log('Final active section:', activeSection);
+    
+    // Update navigation items
+    navItems.forEach((item, index) => {
+        const wasActive = item.classList.contains('active');
+        if (index === activeSection) {
+            item.classList.add('active');
+            if (!wasActive) console.log(`Activated nav item ${index}: ${item.textContent}`);
+        } else {
+            item.classList.remove('active');
+            if (wasActive) console.log(`Deactivated nav item ${index}: ${item.textContent}`);
+        }
+    });
+}
 
 // Console branding
 console.log('%c🚀 KWForce Enterprise AI Solutions', 'color: #F0841D; font-size: 20px; font-weight: bold;');
