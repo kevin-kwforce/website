@@ -14,6 +14,31 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeContactForm();
     initializeFloatingNavigation();
     initializeMobileOptimizations();
+    
+    // Initialize comprehensive responsive design system
+    initializeResponsiveDesign();
+    adjustResponsiveLayout();
+    
+    // Optimize image when it loads
+    const heroImage = document.querySelector('.hero-image');
+    if (heroImage) {
+        heroImage.addEventListener('load', function() {
+            if (isMobileDevice) {
+                setTimeout(() => {
+                    optimizeImageForScreenSize();
+                }, 100);
+            }
+        });
+        
+        // Also optimize if image is already loaded
+        if (heroImage.complete) {
+            setTimeout(() => {
+                if (isMobileDevice) {
+                    optimizeImageForScreenSize();
+                }
+            }, 100);
+        }
+    }
 });
 
 // Mobile Device Detection
@@ -59,9 +84,47 @@ function reinitializeNavigation() {
     }
 }
 
-// Handle window resize
+// Handle window resize and orientation change
 window.addEventListener('resize', function() {
     detectMobileDevice();
+    // Add debouncing for better performance
+    clearTimeout(window.resizeTimeout);
+    window.resizeTimeout = setTimeout(() => {
+        optimizeImageForScreenSize();
+        // Update responsive design system
+        initializeResponsiveDesign();
+        adjustResponsiveLayout();
+    }, 250);
+});
+
+// Handle orientation change specifically for mobile
+window.addEventListener('orientationchange', function() {
+    // Wait for orientation change to complete
+    setTimeout(() => {
+        detectMobileDevice();
+        optimizeImageForScreenSize();
+        
+        // Update responsive design system
+        initializeResponsiveDesign();
+        adjustResponsiveLayout();
+        
+        // Additional optimization for orientation change
+        if (isMobileDevice) {
+            const heroImage = document.querySelector('.hero-image');
+            const heroImageContainer = document.querySelector('.hero-image-container');
+            
+            if (heroImage && heroImageContainer) {
+                // Force reflow and reoptimization
+                heroImage.style.display = 'none';
+                heroImage.offsetHeight; // Force reflow
+                heroImage.style.display = '';
+                
+                setTimeout(() => {
+                    optimizeImageForScreenSize();
+                }, 50);
+            }
+        }
+    }, 100);
 });
 
 // Intro Sequence
@@ -87,16 +150,84 @@ function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const navCta = document.querySelector('.nav-cta');
     
-    // Wheel scroll navigation (only for desktop)
+    // Wheel scroll navigation (only for desktop) - improved with scroll threshold
+    let wheelTimeout;
+    let wheelDelta = 0;
+    const wheelThreshold = 50; // Reduced threshold for more responsive navigation
+    
     document.addEventListener('wheel', function(e) {
         if (isTransitioning || !loadingComplete || isMobileDevice) return;
         
-        e.preventDefault();
-        
-        if (e.deltaY > 0 && currentSection < totalSections - 1) {
-            navigateToSection(currentSection + 1);
-        } else if (e.deltaY < 0 && currentSection > 0) {
-            navigateToSection(currentSection - 1);
+        // Get current section element
+        const currentSectionElement = document.querySelector(`.h-section[data-section="${currentSection}"]`);
+        if (currentSectionElement) {
+            const hasOverflow = currentSectionElement.scrollHeight > currentSectionElement.clientHeight;
+            const isAtTop = currentSectionElement.scrollTop <= 1; // Small tolerance for floating point precision
+            const isAtBottom = currentSectionElement.scrollTop + currentSectionElement.clientHeight >= currentSectionElement.scrollHeight - 5; // Small tolerance
+            
+            // Debug info for scroll navigation
+            if (e.deltaY < 0 && currentSection > 0) {
+                console.log('Scroll up detected:', {
+                    currentSection,
+                    hasOverflow,
+                    isAtTop,
+                    scrollTop: currentSectionElement.scrollTop,
+                    scrollHeight: currentSectionElement.scrollHeight,
+                    clientHeight: currentSectionElement.clientHeight
+                });
+            }
+            
+            // Handle scroll within section vs section navigation
+            if (hasOverflow) {
+                // If scrolling down and not at bottom, allow normal scroll
+                if (e.deltaY > 0 && !isAtBottom) {
+                    return; // Allow normal scrolling down within the section
+                }
+                // If scrolling up and not at top, allow normal scroll
+                if (e.deltaY < 0 && !isAtTop) {
+                    return; // Allow normal scrolling up within the section
+                }
+            }
+            
+            // At this point, we're either at the boundary of the section or there's no overflow
+            // So we should handle section navigation
+            
+            // Prevent default to handle section navigation
+            e.preventDefault();
+            
+            // Accumulate wheel delta to prevent accidental navigation
+            wheelDelta += e.deltaY;
+            
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(() => {
+                if (Math.abs(wheelDelta) >= wheelThreshold) {
+                    // Navigate to next section (scroll down)
+                    if (wheelDelta > 0 && currentSection < totalSections - 1) {
+                        navigateToSection(currentSection + 1);
+                    }
+                    // Navigate to previous section (scroll up)
+                    else if (wheelDelta < 0 && currentSection > 0) {
+                        navigateToSection(currentSection - 1);
+                    }
+                }
+                wheelDelta = 0;
+            }, 50);
+        } else {
+            // Fallback: if no current section found, prevent default and handle navigation
+            e.preventDefault();
+            wheelDelta += e.deltaY;
+            
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(() => {
+                if (Math.abs(wheelDelta) >= wheelThreshold) {
+                    if (wheelDelta > 0 && currentSection < totalSections - 1) {
+                        navigateToSection(currentSection + 1);
+                    } else if (wheelDelta < 0 && currentSection > 0) {
+                        navigateToSection(currentSection - 1);
+                    }
+                }
+                wheelDelta = 0;
+            }, 50);
         }
     }, { passive: false });
     
@@ -192,6 +323,7 @@ function initializeNavigation() {
         if (sectionIndex === currentSection || isTransitioning) return;
         
         isTransitioning = true;
+        const previousSection = currentSection;
         currentSection = sectionIndex;
         
         // Update wrapper position - adaptive for mobile/desktop
@@ -208,8 +340,31 @@ function initializeNavigation() {
                 });
             }
         } else {
+            // Desktop: Smooth horizontal transition with better performance
             const translateX = -sectionIndex * 100;
+            
+            // Reset any section scroll positions to prevent "drop" effect
+            const sections = document.querySelectorAll('.h-section');
+            sections.forEach((section, index) => {
+                if (index !== sectionIndex) {
+                    // Smoothly reset scroll position to prevent jarring jumps
+                    if (section.scrollTop > 0) {
+                        section.style.scrollBehavior = 'auto';
+                        section.scrollTop = 0;
+                        // Restore smooth scrolling after reset
+                        setTimeout(() => {
+                            section.style.scrollBehavior = 'smooth';
+                        }, 50);
+                    }
+                }
+            });
+            
+            // Apply transform with improved transition
+            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
             wrapper.style.transform = `translateX(${translateX}vw)`;
+            
+            // Ensure transform is applied
+            wrapper.offsetHeight; // Force reflow
         }
         
         // Update navigation
@@ -230,10 +385,15 @@ function initializeNavigation() {
             document.body.classList.remove('at-contact-section');
         }
         
-        // Reset transition flag
+        // Reset transition flag with proper timing
         setTimeout(() => {
             isTransitioning = false;
-        }, 800);
+            
+            // Clear transition property to allow normal scrolling within sections
+            if (!isMobileDevice) {
+                wrapper.style.transition = '';
+            }
+        }, 850);
     }
     
     // Unified navigation function
@@ -516,6 +676,9 @@ function initializeMobileOptimizations() {
     // Add mobile-specific styles
     addMobileStyles();
     
+    // Optimize image for current screen size
+    optimizeImageForScreenSize();
+    
     // Check initial position for scroll hint
     setTimeout(() => {
         const mainContent = document.querySelector('.main-content');
@@ -746,8 +909,284 @@ function updateActiveNavigationFromScroll(scrollTop, clientHeight) {
     });
 }
 
+// Image optimization function for mobile devices
+function optimizeImageForScreenSize() {
+    if (!isMobileDevice) return;
+    
+    const heroImage = document.querySelector('.hero-image');
+    const heroImageContainer = document.querySelector('.hero-image-container');
+    
+    if (!heroImage || !heroImageContainer) return;
+    
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const isLandscape = screenWidth > screenHeight;
+    
+    console.log('Optimizing image for screen:', {
+        width: screenWidth,
+        height: screenHeight,
+        isLandscape: isLandscape,
+        orientation: screenWidth > screenHeight ? 'landscape' : 'portrait'
+    });
+    
+    // Apply dynamic sizing based on screen dimensions
+    if (screenWidth <= 320) {
+        // Extremely small screens
+        heroImage.style.maxHeight = '20vh';
+        heroImageContainer.style.minHeight = '160px';
+        heroImageContainer.style.padding = '0 0.125rem';
+    } else if (screenWidth <= 360) {
+        // Very small screens
+        heroImage.style.maxHeight = '25vh';
+        heroImageContainer.style.minHeight = '180px';
+        heroImageContainer.style.padding = '0 0.25rem';
+    } else if (screenWidth <= 480) {
+        // Small screens
+        heroImage.style.maxHeight = '30vh';
+        heroImageContainer.style.minHeight = '200px';
+        heroImageContainer.style.padding = '0 0.5rem';
+    } else if (screenWidth <= 768) {
+        // Medium screens
+        heroImage.style.maxHeight = '35vh';
+        heroImageContainer.style.minHeight = '250px';
+        heroImageContainer.style.padding = '0 1rem';
+    }
+    
+    // Handle landscape orientation for short screens
+    if (isLandscape && screenHeight <= 500) {
+        heroImage.style.maxHeight = '35vh';
+        heroImageContainer.style.minHeight = '200px';
+        heroImageContainer.style.padding = '0 1rem';
+    } else if (isLandscape && screenHeight <= 400) {
+        heroImage.style.maxHeight = '30vh';
+        heroImageContainer.style.minHeight = '150px';
+        heroImageContainer.style.padding = '0 0.5rem';
+    }
+    
+    // Ensure image is fully visible
+    heroImage.style.objectFit = 'contain';
+    heroImage.style.objectPosition = 'center';
+    heroImage.style.width = '100%';
+    heroImage.style.height = 'auto';
+    
+    console.log('Image optimization applied:', {
+        maxHeight: heroImage.style.maxHeight,
+        minHeight: heroImageContainer.style.minHeight,
+        padding: heroImageContainer.style.padding
+    });
+}
+
+// Comprehensive responsive design system
+function initializeResponsiveDesign() {
+    // Only initialize responsive design on mobile devices
+    if (!isMobileDevice) return;
+    
+    const body = document.body;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const aspectRatio = screenWidth / screenHeight;
+    
+    // Remove all existing responsive classes
+    body.classList.remove(
+        'screen-xs', 'screen-sm', 'screen-md', 'screen-lg', 'screen-xl', 'screen-2xl', 'screen-3xl',
+        'orientation-portrait', 'orientation-landscape',
+        'aspect-square', 'aspect-wide', 'aspect-ultra-wide', 'aspect-tall'
+    );
+    
+    // Add screen size classes for mobile
+    if (screenWidth <= 319) {
+        body.classList.add('screen-xs');
+    } else if (screenWidth <= 479) {
+        body.classList.add('screen-sm');
+    } else if (screenWidth <= 767) {
+        body.classList.add('screen-md');
+    }
+    
+    // Add orientation classes
+    if (screenWidth > screenHeight) {
+        body.classList.add('orientation-landscape');
+    } else {
+        body.classList.add('orientation-portrait');
+    }
+    
+    // Add aspect ratio classes
+    if (aspectRatio >= 0.8 && aspectRatio <= 1.2) {
+        body.classList.add('aspect-square');
+    } else if (aspectRatio <= 0.6) {
+        body.classList.add('aspect-tall');
+    } else if (aspectRatio > 1.2) {
+        body.classList.add('aspect-wide');
+    }
+    
+    // Apply responsive classes to elements
+    applyResponsiveClasses();
+    
+    console.log('Mobile responsive design initialized:', {
+        width: screenWidth,
+        height: screenHeight,
+        aspectRatio: aspectRatio.toFixed(2),
+        classes: Array.from(body.classList).filter(cls => cls.startsWith('screen-') || cls.startsWith('orientation-') || cls.startsWith('aspect-'))
+    });
+}
+
+// Apply responsive classes to specific elements
+function applyResponsiveClasses() {
+    // Only apply responsive classes on mobile devices
+    if (isMobileDevice) {
+        // Hero section
+        const heroSection = document.querySelector('.h-section[data-section="0"]');
+        if (heroSection) {
+            heroSection.classList.add('section-responsive');
+        }
+        
+        // About section
+        const aboutSection = document.querySelector('.h-section[data-section="1"]');
+        if (aboutSection) {
+            aboutSection.classList.add('section-responsive');
+        }
+        
+        // Contact section
+        const contactSection = document.querySelector('.h-section[data-section="2"]');
+        if (contactSection) {
+            contactSection.classList.add('section-responsive');
+        }
+        
+        // Navigation
+        const bottomNav = document.querySelector('.bottom-nav');
+        if (bottomNav) {
+            bottomNav.classList.add('bottom-nav-responsive');
+        }
+        
+        // Hero content
+        const homeContent = document.querySelector('.home-content');
+        if (homeContent) {
+            homeContent.classList.add('content-spacing-responsive');
+        }
+        
+        // Hero title
+        const heroTitle = document.querySelector('.hero-title');
+        if (heroTitle) {
+            heroTitle.classList.add('text-scale-responsive-5xl');
+        }
+        
+        // Hero description
+        const heroDescription = document.querySelector('.hero-description');
+        if (heroDescription) {
+            heroDescription.classList.add('text-scale-responsive-lg');
+        }
+        
+        // Hero actions
+        const heroActions = document.querySelector('.hero-actions');
+        if (heroActions) {
+            heroActions.classList.add('flex-responsive');
+        }
+        
+        // Buttons
+        const primaryButtons = document.querySelectorAll('.btn-primary');
+        const secondaryButtons = document.querySelectorAll('.btn-secondary');
+        
+        primaryButtons.forEach(btn => {
+            btn.classList.add('btn-scale-responsive-lg');
+        });
+        
+        secondaryButtons.forEach(btn => {
+            btn.classList.add('btn-scale-responsive-lg');
+        });
+        
+        // Solution cards
+        const solutionCards = document.querySelectorAll('.solution-card');
+        solutionCards.forEach(card => {
+            card.classList.add('solution-card-responsive');
+        });
+        
+        // Solutions grid
+        const solutionsGrid = document.querySelector('.solutions-grid');
+        if (solutionsGrid) {
+            solutionsGrid.classList.add('solutions-grid-responsive');
+        }
+        
+        // Contact form
+        const contactForm = document.querySelector('.contact-form');
+        if (contactForm) {
+            contactForm.classList.add('contact-form-responsive');
+        }
+        
+        // Contact grid
+        const contactGrid = document.querySelector('.contact-grid');
+        if (contactGrid) {
+            contactGrid.classList.add('contact-grid-responsive');
+        }
+        
+        // Section headers
+        const sectionHeaders = document.querySelectorAll('.section-header');
+        sectionHeaders.forEach(header => {
+            header.classList.add('content-spacing-responsive');
+        });
+        
+        // Section titles
+        const sectionTitles = document.querySelectorAll('.section-title');
+        sectionTitles.forEach(title => {
+            title.classList.add('text-scale-responsive-4xl');
+        });
+        
+        // Section subtitles
+        const sectionSubtitles = document.querySelectorAll('.section-subtitle');
+        sectionSubtitles.forEach(subtitle => {
+            subtitle.classList.add('text-scale-responsive-lg');
+        });
+    }
+}
+
+// Dynamic responsive adjustments
+function adjustResponsiveLayout() {
+    // Only adjust layout on mobile devices
+    if (!isMobileDevice) return;
+    
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // Adjust container max-width dynamically for mobile only
+    const root = document.documentElement;
+    let containerMaxWidth = '100%';
+    let containerPadding = '1rem';
+    
+    if (screenWidth >= 768) {
+        containerPadding = '1.5rem';
+    } else if (screenWidth >= 480) {
+        containerPadding = '1.25rem';
+    } else if (screenWidth >= 360) {
+        containerPadding = '1rem';
+    } else if (screenWidth >= 320) {
+        containerPadding = '0.75rem';
+    } else {
+        containerPadding = '0.5rem';
+    }
+    
+    root.style.setProperty('--container-max-width', containerMaxWidth);
+    root.style.setProperty('--container-padding', containerPadding);
+    
+    // Adjust navigation height for mobile
+    let navHeight = '65px';
+    if (screenWidth <= 480) {
+        navHeight = screenWidth <= 360 ? (screenWidth <= 320 ? '50px' : '55px') : '60px';
+    }
+    
+    root.style.setProperty('--nav-height', navHeight);
+    
+    console.log('Mobile responsive layout adjusted:', {
+        containerMaxWidth,
+        containerPadding,
+        navHeight,
+        screenWidth,
+        screenHeight
+    });
+}
+
 // Console branding
 console.log('%c🚀 KWForce Enterprise AI Solutions', 'color: #F0841D; font-size: 20px; font-weight: bold;');
 console.log('%c⚡ Professional horizontal experience loaded', 'color: #059669; font-size: 14px; font-weight: 600;');
 console.log('%c✨ Hidden floating navigation activated', 'color: #F0841D; font-size: 12px; font-style: italic;');
 console.log('%c📧 EmailJS contact system ready (with mailto fallback)', 'color: #6366f1; font-size: 12px; font-style: italic;');
+console.log('%c📱 Mobile image optimization system activated', 'color: #F0841D; font-size: 12px; font-style: italic;');
+console.log('%c🎯 Mobile-responsive design system activated', 'color: #8B5CF6; font-size: 12px; font-style: italic;');
+console.log('%c🌐 Desktop layout preserved, mobile optimized', 'color: #10B981; font-size: 12px; font-style: italic;');
