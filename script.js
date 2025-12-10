@@ -4,9 +4,13 @@ const totalSections = 3;
 let isTransitioning = false;
 let loadingComplete = false;
 let isMobileDevice = false;
+let initialTargetSection = 0; // Store initial URL target section
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // Check URL first to set initial target section
+    checkInitialURL();
+    
     detectMobileDevice();
     initializeIntroSequence();
     initializeNavigation();
@@ -15,9 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFloatingNavigation();
     initializeMobileOptimizations();
     initializeBrowserNavigation();
-    
-    // Check URL and navigate to correct section on page load
-    checkInitialURL();
     
     // Initialize comprehensive responsive design system
     initializeResponsiveDesign();
@@ -136,6 +137,20 @@ function initializeIntroSequence() {
     const introSequence = document.getElementById('introSequence');
     const mainContent = document.getElementById('mainContent');
     
+    // Set initial section position before showing content
+    if (initialTargetSection !== 0) {
+        currentSection = initialTargetSection;
+        console.log('Setting initial currentSection to:', initialTargetSection);
+        
+        // Pre-position the horizontal wrapper
+        const wrapper = document.getElementById('horizontalWrapper');
+        if (wrapper && !isMobileDevice) {
+            const translateX = -initialTargetSection * 100;
+            wrapper.style.transform = `translateX(${translateX}vw)`;
+            wrapper.style.transition = 'none';
+        }
+    }
+    
     // Complete intro sequence after logo animation
     setTimeout(() => {
         introSequence.classList.add('hidden');
@@ -144,6 +159,29 @@ function initializeIntroSequence() {
             introSequence.style.display = 'none';
             mainContent.classList.add('show');
             loadingComplete = true;
+            
+            // Update navigation to reflect current section
+            if (initialTargetSection !== 0) {
+                console.log('Intro complete, updating navigation for section:', initialTargetSection);
+                setTimeout(() => {
+                    // Update nav items
+                    const navItems = document.querySelectorAll('.nav-item');
+                    navItems.forEach((item, index) => {
+                        item.classList.toggle('active', index === initialTargetSection);
+                    });
+                    
+                    // Update mobile indicators
+                    const indicators = document.querySelectorAll('.nav-indicator');
+                    indicators.forEach((indicator, index) => {
+                        indicator.classList.toggle('active', index === initialTargetSection);
+                    });
+                    
+                    // For mobile, scroll to the correct section
+                    if (isMobileDevice && window.goToSection) {
+                        window.goToSection(initialTargetSection);
+                    }
+                }, 100);
+            }
         }, 1000);
     }, 3500);
 }
@@ -170,8 +208,13 @@ function initializeNavigation() {
         }
         
         // Update URL without reloading the page
-        if (window.location.pathname !== url) {
+        // Only push state if URL is different
+        const currentPath = window.location.pathname;
+        if (currentPath !== url) {
+            console.log('Updating URL from', currentPath, 'to', url);
             history.pushState({ section: sectionIndex }, '', url);
+        } else {
+            console.log('URL already correct:', url);
         }
     }
     
@@ -479,29 +522,19 @@ function initializeNavigation() {
 // Check initial URL and navigate to correct section
 function checkInitialURL() {
     const pathname = window.location.pathname;
-    let targetSection = 0;
     
     console.log('Checking initial URL:', pathname);
     
     // Determine target section based on URL
     if (pathname === '/about' || pathname === '/about.html') {
-        targetSection = 1;
+        initialTargetSection = 1;
     } else if (pathname === '/contact' || pathname === '/contact.html') {
-        targetSection = 2;
+        initialTargetSection = 2;
     } else {
-        targetSection = 0; // Home
+        initialTargetSection = 0; // Home
     }
     
-    // If not on home page, navigate to the correct section after intro
-    if (targetSection !== 0) {
-        console.log('Initial URL indicates section:', targetSection);
-        
-        // Wait for intro sequence to complete (3.5s) plus a small buffer
-        setTimeout(() => {
-            console.log('Navigating to section from URL:', targetSection);
-            goToSection(targetSection);
-        }, 4000);
-    }
+    console.log('Initial target section set to:', initialTargetSection);
 }
 
 // Browser Navigation (Back/Forward buttons)
