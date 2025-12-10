@@ -281,6 +281,10 @@ function initializeNavigation() {
             
             if (!isTransitioning && loadingComplete) {
                 const sectionIndex = parseInt(this.getAttribute('data-section')) || index;
+                
+                // Update URL using history.pushState
+                updateURLForSection(sectionIndex);
+                
                 goToSection(sectionIndex);
             }
         });
@@ -437,9 +441,31 @@ function initializeNavigation() {
         }
     }
     
+    // Function to update URL based on section
+    function updateURLForSection(sectionIndex) {
+        let url = '/';
+        switch(sectionIndex) {
+            case 0:
+                url = '/';
+                break;
+            case 1:
+                url = '/about';
+                break;
+            case 2:
+                url = '/contact';
+                break;
+        }
+        
+        // Update URL without reloading the page
+        if (window.location.pathname !== url) {
+            history.pushState({ section: sectionIndex }, '', url);
+        }
+    }
+    
     // Expose navigate functions globally
     window.navigateToSection = navigateToSection;
     window.goToSection = goToSection;
+    window.updateURLForSection = updateURLForSection;
 }
 
 // EmailJS Configuration
