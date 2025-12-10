@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeContactForm();
     initializeFloatingNavigation();
     initializeMobileOptimizations();
+    initializeBrowserNavigation();
     
     // Initialize comprehensive responsive design system
     initializeResponsiveDesign();
@@ -470,6 +471,98 @@ function initializeNavigation() {
     window.navigateToSection = navigateToSection;
     window.goToSection = goToSection;
     window.updateURLForSection = updateURLForSection;
+}
+
+// Browser Navigation (Back/Forward buttons)
+function initializeBrowserNavigation() {
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function(event) {
+        console.log('Popstate event triggered:', event.state, window.location.pathname);
+        
+        // Determine which section to navigate to based on URL
+        let targetSection = 0;
+        const pathname = window.location.pathname;
+        
+        if (pathname === '/' || pathname === '/index.html') {
+            targetSection = 0;
+        } else if (pathname === '/about' || pathname === '/about.html') {
+            targetSection = 1;
+        } else if (pathname === '/contact' || pathname === '/contact.html') {
+            targetSection = 2;
+        }
+        
+        console.log('Navigating to section:', targetSection, 'from URL:', pathname);
+        
+        // Navigate to the section without adding to history
+        if (event.state && event.state.section !== undefined) {
+            targetSection = event.state.section;
+        }
+        
+        // Navigate directly without updating URL again
+        navigateToSectionWithoutHistory(targetSection);
+    });
+    
+    // Function to navigate without updating history (for popstate)
+    function navigateToSectionWithoutHistory(sectionIndex) {
+        console.log('navigateToSectionWithoutHistory called:', sectionIndex);
+        
+        if (sectionIndex === currentSection) {
+            console.log('Already at section', sectionIndex);
+            return;
+        }
+        
+        currentSection = sectionIndex;
+        
+        if (isMobileDevice) {
+            // Mobile navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, index) => {
+                item.classList.toggle('active', index === sectionIndex);
+            });
+            
+            const sections = document.querySelectorAll('.h-section');
+            const mainContent = document.querySelector('.main-content');
+            
+            if (sections[sectionIndex] && mainContent) {
+                const targetSection = sections[sectionIndex];
+                const offsetTop = targetSection.offsetTop;
+                const scrollOffset = offsetTop - 20;
+                
+                mainContent.scrollTo({
+                    top: Math.max(0, scrollOffset),
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // Desktop navigation
+            const wrapper = document.getElementById('horizontalWrapper');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            if (wrapper) {
+                const translateX = -sectionIndex * 100;
+                wrapper.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                wrapper.style.transform = `translateX(${translateX}vw)`;
+                
+                setTimeout(() => {
+                    wrapper.style.transition = '';
+                }, 850);
+            }
+            
+            // Update navigation
+            navItems.forEach((item, index) => {
+                item.classList.toggle('active', index === sectionIndex);
+            });
+        }
+        
+        // Update mobile indicators
+        const indicators = document.querySelectorAll('.nav-indicator');
+        indicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === sectionIndex);
+        });
+    }
+    
+    // Expose function globally
+    window.navigateToSectionWithoutHistory = navigateToSectionWithoutHistory;
 }
 
 // EmailJS Configuration
