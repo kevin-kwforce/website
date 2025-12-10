@@ -4681,3 +4681,119 @@ html, body {
         font-size: 0.9375rem;
     }
 }
+
+/* ============================================
+   MOBILE & TABLET FIXES - NO DESKTOP CHANGES
+   ============================================ */
+
+/* Fix Navigation Menu for Mobile - Show all 5 items */
+@media (max-width: 768px) {
+    /* Navigation - ensure all items fit */
+    .bottom-nav {
+        padding: 0 0.5rem !important;
+        justify-content: space-between !important;
+        gap: 0.25rem !important;
+    }
+    
+    /* Hide logo in mobile to save space */
+    .bottom-nav .nav-brand {
+        display: none !important;
+    }
+    
+    /* Hide CTA button in very small screens */
+    .bottom-nav .nav-cta {
+        display: none !important;
+    }
+    
+    /* Navigation Menu - Make items smaller to fit all 5 */
+    .nav-menu {
+        gap: 0.25rem !important;
+        padding: 0;
+        justify-content: space-evenly !important;
+        width: 100% !important;
+        flex: 1 !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .nav-item {
+        font-size: 0.7rem !important;
+        padding: 0.4rem 0.5rem !important;
+        white-space: nowrap !important;
+        min-width: auto !important;
+        flex: 1 1 auto !important;
+        text-align: center !important;
+    }
+    
+    /* Mobile: Ensure sections stack vertically without overlap */
+    .mobile-device .h-section {
+        width: 100vw !important;
+        min-height: 100vh !important;
+        height: auto !important;
+        display: block !important;
+        position: relative !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 60px !important; /* Space for bottom nav */
+    }
+    
+    /* Mobile: Blog section proper spacing */
+    .mobile-device .h-section[data-section="3"] {
+        padding: 2rem 0 80px 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Mobile: FAQ section proper spacing */
+    .mobile-device .h-section[data-section="4"] {
+        padding: 2rem 0 80px 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Mobile: Prevent horizontal scrolling */
+    .mobile-device .main-content {
+        overflow-x: hidden !important;
+        width: 100vw !important;
+    }
+    
+    /* Mobile: Blog grid */
+    .mobile-device .blog-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+        width: 100% !important;
+    }
+    
+    /* Mobile: FAQ containers */
+    .mobile-device .faq-container {
+        width: 100% !important;
+        padding: 0 1rem !important;
+    }
+}
+
+/* Extra small phones - Further optimize nav */
+@media (max-width: 480px) {
+    .nav-menu {
+        gap: 0.25rem !important;
+    }
+    
+    .nav-item {
+        font-size: 0.7rem !important;
+        padding: 0.2rem 0.4rem !important;
+    }
+}
+
+/* Tablet specific fixes */
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* Tablet: Ensure nav items fit nicely */
+    .nav-menu {
+        gap: 1rem;
+    }
+    
+    .nav-item {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
