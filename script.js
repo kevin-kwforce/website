@@ -150,6 +150,27 @@ function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const navCta = document.querySelector('.nav-cta');
     
+    // Function to update URL based on section
+    function updateURLForSection(sectionIndex) {
+        let url = '/';
+        switch(sectionIndex) {
+            case 0:
+                url = '/';
+                break;
+            case 1:
+                url = '/about';
+                break;
+            case 2:
+                url = '/contact';
+                break;
+        }
+        
+        // Update URL without reloading the page
+        if (window.location.pathname !== url) {
+            history.pushState({ section: sectionIndex }, '', url);
+        }
+    }
+    
     // Wheel scroll navigation (only for desktop) - improved with scroll threshold
     let wheelTimeout;
     let wheelDelta = 0;
@@ -326,6 +347,9 @@ function initializeNavigation() {
         const previousSection = currentSection;
         currentSection = sectionIndex;
         
+        // Update URL
+        updateURLForSection(sectionIndex);
+        
         // Update wrapper position - adaptive for mobile/desktop
         if (isMobileDevice) {
             // On mobile, just scroll to the section smoothly
@@ -400,10 +424,10 @@ function initializeNavigation() {
     function goToSection(sectionIndex) {
         console.log('goToSection called:', sectionIndex, 'isMobileDevice:', isMobileDevice);
         
-        // Update URL
-        updateURLForSection(sectionIndex);
-        
         if (isMobileDevice) {
+            // Update URL for mobile
+            updateURLForSection(sectionIndex);
+            
             // On mobile, scroll to the section smoothly
             currentSection = sectionIndex;
             
@@ -416,6 +440,7 @@ function initializeNavigation() {
             // Scroll to section on mobile
             scrollToSectionMobile(sectionIndex);
         } else {
+            // For desktop, navigateToSection will handle URL update
             navigateToSection(sectionIndex);
         }
     }
@@ -438,27 +463,6 @@ function initializeNavigation() {
                 top: Math.max(0, scrollOffset),
                 behavior: 'smooth'
             });
-        }
-    }
-    
-    // Function to update URL based on section
-    function updateURLForSection(sectionIndex) {
-        let url = '/';
-        switch(sectionIndex) {
-            case 0:
-                url = '/';
-                break;
-            case 1:
-                url = '/about';
-                break;
-            case 2:
-                url = '/contact';
-                break;
-        }
-        
-        // Update URL without reloading the page
-        if (window.location.pathname !== url) {
-            history.pushState({ section: sectionIndex }, '', url);
         }
     }
     
@@ -669,11 +673,8 @@ function initializeFloatingNavigation() {
                     break;
             }
             
-            // Update URL
-            updateURLForSection(sectionIndex);
-            
-            // Navigate to section
-            navigateToSection(sectionIndex);
+            // Use goToSection which handles URL updates
+            goToSection(sectionIndex);
             
             // Add a subtle click effect
             this.style.transform = 'scale(1.6)';
