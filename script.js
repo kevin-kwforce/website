@@ -6,6 +6,209 @@ let loadingComplete = false;
 let isMobileDevice = false;
 let initialTargetSection = 0; // Store initial URL target section
 
+// ============================================
+// BLOG ARTICLE SYSTEM - Must be defined early for initializeIntroSequence
+// ============================================
+
+// Blog articles content (global for access from initializeIntroSequence)
+window.blogArticles = {
+    'future-of-enterprise-ai': {
+        category: 'AI Strategy',
+        date: 'Dec 2025',
+        readTime: '8 min read',
+        title: 'The Future of Enterprise AI: From Hype to Reality',
+        excerpt: 'As we approach 2026, artificial intelligence has moved beyond experimental phases into core business operations. Discover how leading companies are implementing AI strategies that deliver measurable ROI and sustainable competitive advantages.',
+        content: `
+            <h2>The AI Revolution is Here</h2>
+            <p>After years of experimentation and pilot programs, artificial intelligence has finally reached the mainstream in enterprise environments. What was once considered cutting-edge technology is now becoming a critical component of business operations across industries.</p>
+            
+            <p>The transformation is remarkable: according to recent studies, over 75% of Fortune 500 companies now have active AI implementations, with the majority reporting measurable improvements in operational efficiency, decision-making, and customer satisfaction.</p>
+            
+            <h2>From Hype to Reality: What Changed?</h2>
+            <p>Several key factors have contributed to this shift from experimental to essential:</p>
+            
+            <ul>
+                <li><strong>Maturation of Technology:</strong> AI models have become more reliable, accurate, and easier to implement. Cloud-based solutions and pre-trained models have significantly lowered the technical barriers to entry.</li>
+                <li><strong>Proven ROI:</strong> Early adopters have demonstrated clear returns on investment, making it easier for other companies to justify AI initiatives.</li>
+                <li><strong>Competitive Pressure:</strong> Companies that don't adopt AI risk falling behind competitors who leverage it for efficiency gains and innovation.</li>
+                <li><strong>Data Maturity:</strong> Organizations now have the data infrastructure and governance needed to effectively train and deploy AI systems.</li>
+            </ul>
+            
+            <h2>Key Implementation Strategies</h2>
+            <p>Successful enterprise AI implementations share several common characteristics:</p>
+            
+            <h3>Start with Clear Business Objectives</h3>
+            <p>The most successful AI projects begin with specific, measurable business goals rather than technology-first thinking. Whether it's reducing customer support response times, improving forecasting accuracy, or automating document processing, clarity on desired outcomes is essential.</p>
+            
+            <h3>Build the Right Team</h3>
+            <p>AI success requires collaboration between technical experts and business stakeholders. The most effective organizations create cross-functional teams that include data scientists, domain experts, and business leaders.</p>
+            
+            <h3>Focus on Data Quality</h3>
+            <p>AI is only as good as the data it learns from. Investing in data infrastructure, governance, and quality assurance pays significant dividends in AI performance and reliability.</p>
+            
+            <h2>The Path Forward</h2>
+            <p>As we look toward 2026 and beyond, several trends are emerging that will shape the future of enterprise AI:</p>
+            
+            <ul>
+                <li><strong>Hybrid AI Approaches:</strong> Combining on-premise and cloud solutions to balance privacy, performance, and cost.</li>
+                <li><strong>Industry-Specific Solutions:</strong> Moving beyond generic AI to specialized models trained for specific sectors and use cases.</li>
+                <li><strong>Explainable AI:</strong> Growing emphasis on understanding and explaining AI decisions, particularly in regulated industries.</li>
+                <li><strong>AI Governance:</strong> Establishing frameworks for ethical AI use, bias mitigation, and regulatory compliance.</li>
+            </ul>
+            
+            <blockquote>The companies that will lead in the coming decade are those that view AI not as a technology project, but as a fundamental business transformation.</blockquote>
+            
+            <h2>Getting Started</h2>
+            <p>If your organization is ready to move beyond AI hype to real implementation, the key is to start with a focused pilot project that addresses a specific business need. Success with one project builds organizational confidence and provides a foundation for broader AI adoption.</p>
+            
+            <p>At KWForce, we help companies navigate this transition with strategic planning, technical implementation, and ongoing support to ensure AI initiatives deliver measurable business value.</p>
+        `
+    },
+    'local-llms-privacy-first': {
+        category: 'Technology',
+        date: 'Nov 2025',
+        readTime: '6 min read',
+        title: 'Local LLMs: Privacy-First AI Solutions',
+        excerpt: 'Why more enterprises are choosing local Large Language Models over cloud-based alternatives. Learn about the security, compliance, and performance benefits of keeping your AI infrastructure in-house.',
+        content: `
+            <h2>The Privacy Challenge in AI</h2>
+            <p>As organizations increasingly rely on Large Language Models (LLMs) for everything from document analysis to customer support, a critical question has emerged: where should this processing happen?</p>
+            
+            <p>While cloud-based AI services offer convenience and powerful capabilities, they come with significant privacy concerns. Every query, every document, every piece of data sent to cloud AI services leaves your organization's direct control.</p>
+            
+            <h2>Why Local LLMs Matter</h2>
+            <p>Local LLMs—AI models that run entirely within your organization's infrastructure—offer a compelling alternative for enterprises with serious privacy and security requirements.</p>
+            
+            <h3>Complete Data Control</h3>
+            <p>With local LLMs, your sensitive business information never leaves your premises. There's no third-party access, no cloud storage, no external processing.</p>
+            
+            <h2>Implementation Considerations</h2>
+            <p>Deploying local LLMs requires careful planning but offers significant long-term benefits for data-sensitive organizations.</p>
+        `
+    },
+    'ai-integration-guide': {
+        category: 'Best Practices',
+        date: 'Nov 2025',
+        readTime: '10 min read',
+        title: 'AI Integration: A Step-by-Step Guide',
+        excerpt: 'Successfully integrating AI into existing workflows requires careful planning and execution. This comprehensive guide walks you through the essential steps, from assessment to deployment and beyond.',
+        content: `
+            <h2>The AI Integration Challenge</h2>
+            <p>Integrating AI into existing business processes is more complex than simply deploying new technology. It requires organizational change, process redesign, and cultural adaptation alongside technical implementation.</p>
+            
+            <h2>Phase 1: Assessment and Planning</h2>
+            <p>Start by mapping your current processes and identifying areas where AI can provide significant value.</p>
+            
+            <h2>Phase 2: Pilot Project</h2>
+            <p>Don't attempt to transform your entire organization at once. Choose a pilot project that is important enough to matter but not mission-critical.</p>
+        `
+    },
+    'automating-business-processes': {
+        category: 'Innovation',
+        date: 'Oct 2025',
+        readTime: '7 min read',
+        title: 'Automating Business Processes with AI',
+        excerpt: 'Discover how intelligent automation is transforming traditional business processes. From document processing to customer service, AI is enabling unprecedented efficiency gains across industries.',
+        content: `
+            <h2>The Automation Revolution</h2>
+            <p>Business process automation is entering a new era. While traditional automation handled structured, rule-based tasks, AI-powered automation can now handle complex, judgment-based processes that previously required human intelligence.</p>
+            
+            <h2>Key Areas for AI Automation</h2>
+            <p>Document processing, customer service, and data analysis are seeing the most dramatic improvements from AI automation.</p>
+        `
+    },
+    'reducing-search-time-90': {
+        category: 'Case Study',
+        date: 'Oct 2025',
+        readTime: '5 min read',
+        title: 'Reducing Search Time by 90% with AI Assistants',
+        excerpt: 'A real-world case study showing how our Local LLM Assistant helped a Fortune 500 company dramatically reduce information retrieval time while maintaining complete data privacy and security.',
+        content: `
+            <h2>The Challenge</h2>
+            <p>A Fortune 500 financial services company was struggling with a critical productivity problem: employees were spending an average of 12 hours per week searching for information across various systems, documents, and databases.</p>
+            
+            <h2>The Solution</h2>
+            <p>We implemented our Local LLM Assistant with several key capabilities including universal content integration and intelligent search and retrieval.</p>
+            
+            <h2>Results</h2>
+            <p>90% reduction in search time, from 12 hours/week to 1.2 hours/week per employee, saving $13.5 million annually in recovered productivity.</p>
+        `
+    },
+    '2026-ai-trends': {
+        category: 'Trends',
+        date: 'Sep 2025',
+        readTime: '9 min read',
+        title: '2026 AI Trends Every Business Leader Should Know',
+        excerpt: 'Stay ahead of the curve with our analysis of emerging AI trends for 2026. From multimodal AI to edge computing, understand what\'s coming and how to prepare your organization.',
+        content: `
+            <h2>The AI Landscape in 2026</h2>
+            <p>As we approach 2026, artificial intelligence continues to evolve at a remarkable pace. Understanding emerging trends is essential for business leaders who want to maintain competitive advantage and capitalize on new opportunities.</p>
+            
+            <h2>1. Multimodal AI Systems</h2>
+            <p>Multimodal AI can process and understand multiple types of input simultaneously—text, images, audio, video, and sensor data—rather than focusing on a single modality.</p>
+            
+            <h2>2. Edge AI</h2>
+            <p>Processing AI workloads on devices at the "edge" of the network addresses critical limitations of cloud-based AI including latency, privacy, and cost.</p>
+            
+            <h2>Preparing Your Organization</h2>
+            <p>Develop a 3-year AI roadmap aligned with business goals and assess current capabilities and gaps.</p>
+        `
+    }
+};
+
+// Show article function (global - defined early)
+window.showArticle = function(articleId) {
+    const article = window.blogArticles[articleId];
+    if (!article) {
+        console.log('Article not found:', articleId);
+        return;
+    }
+    
+    console.log('Showing article:', articleId);
+    
+    const articleView = document.getElementById('blogArticleView');
+    const articleContent = document.getElementById('articleContent');
+    const blogSection = document.querySelector('[data-section="3"]');
+    
+    if (!articleView || !articleContent) {
+        console.log('Article view elements not found');
+        return;
+    }
+    
+    // Build article HTML
+    const articleHTML = `
+        <div class="article-header">
+            <div class="article-meta">
+                <span class="article-category">${article.category}</span>
+                <span class="article-date">${article.date}</span>
+                <span class="article-read-time">⏱️ ${article.readTime}</span>
+            </div>
+            <h1 class="article-title">${article.title}</h1>
+            <p class="article-excerpt">${article.excerpt}</p>
+        </div>
+        <div class="article-body">
+            ${article.content}
+        </div>
+    `;
+    
+    articleContent.innerHTML = articleHTML;
+    
+    // Hide blog section, show article view
+    if (blogSection) blogSection.style.display = 'none';
+    articleView.style.display = 'block';
+    
+    // Scroll to top
+    articleView.scrollTop = 0;
+    
+    // Update URL
+    const newURL = `/blog/${articleId}`;
+    if (window.location.pathname !== newURL) {
+        history.pushState({ article: articleId }, '', newURL);
+    }
+    
+    console.log('Article displayed:', articleId);
+};
+
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Check URL first to set initial target section
@@ -21,6 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeBrowserNavigation();
     initializeFAQ();
     initializeBlogCTA();
+    initializeBlogArticles();
     
     // Initialize comprehensive responsive design system
     initializeResponsiveDesign();
@@ -175,6 +379,24 @@ function initializeIntroSequence() {
                 indicator.classList.toggle('active', index === initialTargetSection);
             });
             
+            // Check if should show an article (for /blog/article-name URLs)
+            const pathname = window.location.pathname;
+            if (pathname.startsWith('/blog/')) {
+                const articleId = pathname.substring(6); // Remove '/blog/'
+                if (articleId && window.blogArticles && window.blogArticles[articleId]) {
+                    console.log('Direct article access detected:', articleId);
+                    // Wait longer to ensure all DOM elements are ready
+                    setTimeout(() => {
+                        console.log('Attempting to show article:', articleId);
+                        if (typeof window.showArticle === 'function') {
+                            window.showArticle(articleId);
+                        } else {
+                            console.error('showArticle function not available');
+                        }
+                    }, 500);
+                }
+            }
+            
             // For mobile, scroll to the correct section
             if (isMobileDevice) {
                 const sections = document.querySelectorAll('.h-section');
@@ -265,6 +487,10 @@ function initializeNavigation() {
     const wheelThreshold = 50; // Reduced threshold for more responsive navigation
     
     document.addEventListener('wheel', function(e) {
+        // Don't navigate if article is open
+        const articleView = document.getElementById('blogArticleView');
+        if (articleView && articleView.style.display === 'block') return;
+        
         if (isTransitioning || !loadingComplete || isMobileDevice) return;
         
         // Get current section element
@@ -348,6 +574,10 @@ function initializeNavigation() {
     }, { passive: true });
     
     document.addEventListener('touchend', function(e) {
+        // Don't navigate if article is open
+        const articleView = document.getElementById('blogArticleView');
+        if (articleView && articleView.style.display === 'block') return;
+        
         if (isTransitioning || !loadingComplete) return;
         
         const touchEndX = e.changedTouches[0].clientX;
@@ -364,6 +594,10 @@ function initializeNavigation() {
     
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {
+        // Don't navigate if article is open
+        const articleView = document.getElementById('blogArticleView');
+        if (articleView && articleView.style.display === 'block') return;
+        
         if (isTransitioning || !loadingComplete) return;
         
         switch(e.key) {
@@ -571,8 +805,9 @@ function checkInitialURL() {
         initialTargetSection = 1;
     } else if (pathname === '/contact' || pathname === '/contact.html') {
         initialTargetSection = 2;
-    } else if (pathname === '/blog' || pathname === '/blog.html') {
+    } else if (pathname === '/blog' || pathname === '/blog.html' || pathname.startsWith('/blog/')) {
         initialTargetSection = 3;
+        // Note: Article will be shown by checkForArticleInURL() after intro
     } else if (pathname === '/faq' || pathname === '/faq.html') {
         initialTargetSection = 4;
     } else {
@@ -1001,6 +1236,10 @@ function modifyTouchNavigation() {
     }, { passive: true });
     
     document.addEventListener('touchend', function(e) {
+        // Don't navigate if article is open
+        const articleView = document.getElementById('blogArticleView');
+        if (articleView && articleView.style.display === 'block') return;
+        
         if (isTransitioning || !loadingComplete) return;
         
         const touchEndY = e.changedTouches[0].clientY;
@@ -1487,6 +1726,108 @@ function initializeBlogCTA() {
     
     console.log('Blog and FAQ CTAs initialized');
 }
+
+// Initialize blog article system
+function initializeBlogArticles() {
+    const blogCards = document.querySelectorAll('.blog-card');
+    const articleView = document.getElementById('blogArticleView');
+    const articleContent = document.getElementById('articleContent');
+    const backBtn = document.getElementById('articleBackBtn');
+    const articleCtaBtn = document.querySelector('.article-cta-btn');
+    
+    if (!articleView || !articleContent || !backBtn) return;
+    
+    // Make blog cards clickable
+    blogCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            const articleId = this.getAttribute('data-article');
+            if (articleId && typeof window.showArticle === 'function') {
+                window.showArticle(articleId);
+            }
+        });
+    });
+    
+    // Back button functionality
+    backBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        hideArticle();
+    });
+    
+    // Article CTA button
+    if (articleCtaBtn) {
+        articleCtaBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            hideArticle();
+            goToSection(2); // Go to Contact section
+        });
+    }
+    
+    console.log('Blog articles system initialized');
+}
+
+// Hide article function
+function hideArticle() {
+    const articleView = document.getElementById('blogArticleView');
+    const blogSection = document.querySelector('[data-section="3"]');
+    
+    // Show blog section, hide article view
+    if (blogSection) blogSection.style.display = 'block';
+    if (articleView) articleView.style.display = 'none';
+    
+    // Update URL back to /blog
+    if (window.location.pathname.startsWith('/blog/')) {
+        history.pushState({}, '', '/blog');
+    }
+    
+    // Navigate back to blog section
+    const currentURL = window.location.pathname;
+    if (currentURL === '/blog' || currentURL.startsWith('/blog/')) {
+        // Force navigation to blog section
+        navigateToSection(3);
+    }
+}
+
+// Check for article in URL (called from initializeBlogArticles, not needed separately)
+function checkForArticleInURL() {
+    const path = window.location.pathname;
+    if (path.startsWith('/blog/')) {
+        const articleId = path.substring(6); // Remove '/blog/'
+        if (window.blogArticles && window.blogArticles[articleId]) {
+            // Navigate to blog section first, then show article
+            currentSection = 3;
+            goToSection(3);
+            setTimeout(() => {
+                if (typeof window.showArticle === 'function') {
+                    window.showArticle(articleId);
+                }
+            }, 100);
+        }
+    }
+}
+
+// Handle browser back/forward for articles (only attach once)
+(function() {
+    let popstateHandlerAttached = false;
+    if (!popstateHandlerAttached) {
+        window.addEventListener('popstate', function(e) {
+            const path = window.location.pathname;
+            if (path.startsWith('/blog/')) {
+                const articleId = path.substring(6);
+                if (window.blogArticles && window.blogArticles[articleId]) {
+                    if (typeof window.showArticle === 'function') {
+                        window.showArticle(articleId);
+                    }
+                }
+            } else if (path === '/blog') {
+                if (typeof hideArticle === 'function') {
+                    hideArticle();
+                }
+            }
+        });
+        popstateHandlerAttached = true;
+    }
+})();
 
 // Console branding
 console.log('%c🚀 KWForce Enterprise AI Solutions', 'color: #F0841D; font-size: 20px; font-weight: bold;');

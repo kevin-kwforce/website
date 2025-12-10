@@ -6,24 +6,54 @@
       <priority>1.0</priority>
    </url>
    <url>
-      <loc>https://kwforce.com/about.html</loc>
+      <loc>https://kwforce.com/about</loc>
       <lastmod>2025-12-10</lastmod>
       <priority>0.8</priority>
    </url>
    <url>
-      <loc>https://kwforce.com/contact.html</loc>
+      <loc>https://kwforce.com/contact</loc>
       <lastmod>2025-12-10</lastmod>
       <priority>0.8</priority>
    </url>
    <url>
-      <loc>https://kwforce.com/blog.html</loc>
+      <loc>https://kwforce.com/blog</loc>
       <lastmod>2025-12-10</lastmod>
       <priority>0.9</priority>
    </url>
    <url>
-      <loc>https://kwforce.com/faq.html</loc>
+      <loc>https://kwforce.com/faq</loc>
       <lastmod>2025-12-10</lastmod>
       <priority>0.7</priority>
+   </url>
+   <url>
+      <loc>https://kwforce.com/blog/future-of-enterprise-ai</loc>
+      <lastmod>2025-12-10</lastmod>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://kwforce.com/blog/local-llms-privacy-first</loc>
+      <lastmod>2025-12-10</lastmod>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://kwforce.com/blog/ai-integration-guide</loc>
+      <lastmod>2025-12-10</lastmod>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://kwforce.com/blog/automating-business-processes</loc>
+      <lastmod>2025-12-10</lastmod>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://kwforce.com/blog/reducing-search-time-90</loc>
+      <lastmod>2025-12-10</lastmod>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://kwforce.com/blog/2026-ai-trends</loc>
+      <lastmod>2025-12-10</lastmod>
+      <priority>0.8</priority>
    </url>
 </urlset>
 

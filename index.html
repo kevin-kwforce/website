@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KWForce - Enterprise AI Solutions</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -71,7 +71,7 @@
         
         <!-- KWForce Title Animation -->
         <div class="intro-title">
-            <img src="kwfoce-logo.png" alt="KWForce" class="intro-logo">
+            <img src="/kwfoce-logo.png" alt="KWForce" class="intro-logo">
         </div>
         
 
@@ -83,7 +83,7 @@
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <div class="nav-brand">
-                <img src="kwfoce-logo.png" alt="KWForce" class="nav-logo">
+                <img src="/kwfoce-logo.png" alt="KWForce" class="nav-logo">
             </div>
                                 <div class="nav-menu">
                         <a href="#" class="nav-item active" data-section="0">Home</a>
@@ -158,7 +158,7 @@
                         </div>
                         <div class="hero-visual">
                             <div class="hero-image-container">
-                                <img src="image_main.png" alt="AI Technology" class="hero-image">
+                                <img src="/image_main.png" alt="AI Technology" class="hero-image">
                                 <div class="image-overlay"></div>
                             </div>
                         </div>
@@ -370,7 +370,7 @@
                     
                     <div class="blog-grid">
                         <!-- Article 1 -->
-                        <article class="blog-card featured">
+                        <article class="blog-card featured" data-article="future-of-enterprise-ai">
                             <div class="blog-card-header">
                                 <span class="blog-category">AI Strategy</span>
                                 <span class="blog-date">Dec 2025</span>
@@ -390,7 +390,7 @@
                         </article>
 
                         <!-- Article 2 -->
-                        <article class="blog-card">
+                        <article class="blog-card" data-article="local-llms-privacy-first">
                             <div class="blog-card-header">
                                 <span class="blog-category">Technology</span>
                                 <span class="blog-date">Nov 2025</span>
@@ -409,7 +409,7 @@
                         </article>
 
                         <!-- Article 3 -->
-                        <article class="blog-card">
+                        <article class="blog-card" data-article="ai-integration-guide">
                             <div class="blog-card-header">
                                 <span class="blog-category">Best Practices</span>
                                 <span class="blog-date">Nov 2025</span>
@@ -428,7 +428,7 @@
                         </article>
 
                         <!-- Article 4 -->
-                        <article class="blog-card">
+                        <article class="blog-card" data-article="automating-business-processes">
                             <div class="blog-card-header">
                                 <span class="blog-category">Innovation</span>
                                 <span class="blog-date">Oct 2025</span>
@@ -447,7 +447,7 @@
                         </article>
 
                         <!-- Article 5 -->
-                        <article class="blog-card">
+                        <article class="blog-card" data-article="reducing-search-time-90">
                             <div class="blog-card-header">
                                 <span class="blog-category">Case Study</span>
                                 <span class="blog-date">Oct 2025</span>
@@ -466,7 +466,7 @@
                         </article>
 
                         <!-- Article 6 -->
-                        <article class="blog-card">
+                        <article class="blog-card" data-article="2026-ai-trends">
                             <div class="blog-card-header">
                                 <span class="blog-category">Trends</span>
                                 <span class="blog-date">Sep 2025</span>
@@ -681,8 +681,30 @@
             </section>
 
         </div>
+
+        <!-- Blog Article View (Hidden by default, shown when article is selected) -->
+        <div class="blog-article-view" id="blogArticleView" style="display: none;">
+            <div class="article-container">
+                <button class="article-back-btn" id="articleBackBtn">
+                    <span>←</span> Back to Blog
+                </button>
+                
+                <article class="article-content" id="articleContent">
+                    <!-- Content will be injected by JavaScript -->
+                </article>
+                
+                <div class="article-footer">
+                    <div class="article-cta">
+                        <h3>Ready to Transform Your Business with AI?</h3>
+                        <p>Let's discuss how our solutions can help you achieve your goals.</p>
+                        <button class="btn-primary article-cta-btn">Schedule a Consultation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <script src="script.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>
