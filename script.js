@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMobileOptimizations();
     initializeBrowserNavigation();
     
+    // Check URL and navigate to correct section on page load
+    checkInitialURL();
+    
     // Initialize comprehensive responsive design system
     initializeResponsiveDesign();
     adjustResponsiveLayout();
@@ -471,6 +474,34 @@ function initializeNavigation() {
     window.navigateToSection = navigateToSection;
     window.goToSection = goToSection;
     window.updateURLForSection = updateURLForSection;
+}
+
+// Check initial URL and navigate to correct section
+function checkInitialURL() {
+    const pathname = window.location.pathname;
+    let targetSection = 0;
+    
+    console.log('Checking initial URL:', pathname);
+    
+    // Determine target section based on URL
+    if (pathname === '/about' || pathname === '/about.html') {
+        targetSection = 1;
+    } else if (pathname === '/contact' || pathname === '/contact.html') {
+        targetSection = 2;
+    } else {
+        targetSection = 0; // Home
+    }
+    
+    // If not on home page, navigate to the correct section after intro
+    if (targetSection !== 0) {
+        console.log('Initial URL indicates section:', targetSection);
+        
+        // Wait for intro sequence to complete (3.5s) plus a small buffer
+        setTimeout(() => {
+            console.log('Navigating to section from URL:', targetSection);
+            goToSection(targetSection);
+        }, 4000);
+    }
 }
 
 // Browser Navigation (Back/Forward buttons)
