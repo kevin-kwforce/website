@@ -1,6 +1,6 @@
 // Global variables
 let currentSection = 0;
-const totalSections = 3;
+const totalSections = 5; // Updated to 5: Home, About, Contact, Blog, FAQ
 let isTransitioning = false;
 let loadingComplete = false;
 let isMobileDevice = false;
@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFloatingNavigation();
     initializeMobileOptimizations();
     initializeBrowserNavigation();
+    initializeFAQ();
+    initializeBlogCTA();
     
     // Initialize comprehensive responsive design system
     initializeResponsiveDesign();
@@ -137,10 +139,19 @@ function initializeIntroSequence() {
     const introSequence = document.getElementById('introSequence');
     const mainContent = document.getElementById('mainContent');
     
-    // Set initial section position before showing content
-    if (initialTargetSection !== 0) {
+    // Skip intro if accessing /about or /contact directly
+    const skipIntro = initialTargetSection !== 0;
+    
+    if (skipIntro) {
+        console.log('Skipping intro, direct access to section:', initialTargetSection);
+        
+        // Hide intro immediately
+        introSequence.style.display = 'none';
+        mainContent.classList.add('show');
+        loadingComplete = true;
+        
+        // Set current section
         currentSection = initialTargetSection;
-        console.log('Setting initial currentSection to:', initialTargetSection);
         
         // Pre-position the horizontal wrapper
         const wrapper = document.getElementById('horizontalWrapper');
@@ -149,8 +160,43 @@ function initializeIntroSequence() {
             wrapper.style.transform = `translateX(${translateX}vw)`;
             wrapper.style.transition = 'none';
         }
+        
+        // Update navigation immediately
+        setTimeout(() => {
+            // Update nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, index) => {
+                item.classList.toggle('active', index === initialTargetSection);
+            });
+            
+            // Update mobile indicators
+            const indicators = document.querySelectorAll('.nav-indicator');
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === initialTargetSection);
+            });
+            
+            // For mobile, scroll to the correct section
+            if (isMobileDevice) {
+                const sections = document.querySelectorAll('.h-section');
+                const mainContent = document.querySelector('.main-content');
+                
+                if (sections[initialTargetSection] && mainContent) {
+                    const targetSection = sections[initialTargetSection];
+                    const offsetTop = targetSection.offsetTop;
+                    const scrollOffset = offsetTop - 20;
+                    
+                    mainContent.scrollTo({
+                        top: Math.max(0, scrollOffset),
+                        behavior: 'auto'
+                    });
+                }
+            }
+        }, 10);
+        
+        return; // Exit early, no intro animation
     }
     
+    // Normal intro sequence for home page
     // Complete intro sequence after logo animation
     setTimeout(() => {
         introSequence.classList.add('hidden');
@@ -159,29 +205,6 @@ function initializeIntroSequence() {
             introSequence.style.display = 'none';
             mainContent.classList.add('show');
             loadingComplete = true;
-            
-            // Update navigation to reflect current section
-            if (initialTargetSection !== 0) {
-                console.log('Intro complete, updating navigation for section:', initialTargetSection);
-                setTimeout(() => {
-                    // Update nav items
-                    const navItems = document.querySelectorAll('.nav-item');
-                    navItems.forEach((item, index) => {
-                        item.classList.toggle('active', index === initialTargetSection);
-                    });
-                    
-                    // Update mobile indicators
-                    const indicators = document.querySelectorAll('.nav-indicator');
-                    indicators.forEach((indicator, index) => {
-                        indicator.classList.toggle('active', index === initialTargetSection);
-                    });
-                    
-                    // For mobile, scroll to the correct section
-                    if (isMobileDevice && window.goToSection) {
-                        window.goToSection(initialTargetSection);
-                    }
-                }, 100);
-            }
         }, 1000);
     }, 3500);
 }
@@ -205,17 +228,35 @@ function initializeNavigation() {
             case 2:
                 url = '/contact';
                 break;
+            case 3:
+                url = '/blog';
+                break;
+            case 4:
+                url = '/faq';
+                break;
         }
         
         // Update URL without reloading the page
         // Only push state if URL is different
         const currentPath = window.location.pathname;
-        if (currentPath !== url) {
-            console.log('Updating URL from', currentPath, 'to', url);
-            history.pushState({ section: sectionIndex }, '', url);
-        } else {
-            console.log('URL already correct:', url);
+        
+        // Don't change URL if already at the target path (maintain SEO-friendly URLs)
+        if (currentPath === url) {
+            console.log('URL already correct, maintaining:', url);
+            return;
         }
+        
+        // Special case: maintain SEO-friendly URLs
+        if ((currentPath === '/about' && sectionIndex === 1) || 
+            (currentPath === '/contact' && sectionIndex === 2) ||
+            (currentPath === '/blog' && sectionIndex === 3) ||
+            (currentPath === '/faq' && sectionIndex === 4)) {
+            console.log('Maintaining current URL for SEO:', currentPath);
+            return;
+        }
+        
+        console.log('Updating URL from', currentPath, 'to', url);
+        history.pushState({ section: sectionIndex }, '', url);
     }
     
     // Wheel scroll navigation (only for desktop) - improved with scroll threshold
@@ -530,6 +571,10 @@ function checkInitialURL() {
         initialTargetSection = 1;
     } else if (pathname === '/contact' || pathname === '/contact.html') {
         initialTargetSection = 2;
+    } else if (pathname === '/blog' || pathname === '/blog.html') {
+        initialTargetSection = 3;
+    } else if (pathname === '/faq' || pathname === '/faq.html') {
+        initialTargetSection = 4;
     } else {
         initialTargetSection = 0; // Home
     }
@@ -539,6 +584,18 @@ function checkInitialURL() {
 
 // Browser Navigation (Back/Forward buttons)
 function initializeBrowserNavigation() {
+    // Set initial state if not set
+    if (!history.state) {
+        const pathname = window.location.pathname;
+        let section = 0;
+        if (pathname === '/about' || pathname === '/about.html') {
+            section = 1;
+        } else if (pathname === '/contact' || pathname === '/contact.html') {
+            section = 2;
+        }
+        history.replaceState({ section: section }, '', pathname);
+    }
+    
     // Handle browser back/forward buttons
     window.addEventListener('popstate', function(event) {
         console.log('Popstate event triggered:', event.state, window.location.pathname);
@@ -553,6 +610,10 @@ function initializeBrowserNavigation() {
             targetSection = 1;
         } else if (pathname === '/contact' || pathname === '/contact.html') {
             targetSection = 2;
+        } else if (pathname === '/blog' || pathname === '/blog.html') {
+            targetSection = 3;
+        } else if (pathname === '/faq' || pathname === '/faq.html') {
+            targetSection = 4;
         }
         
         console.log('Navigating to section:', targetSection, 'from URL:', pathname);
@@ -1373,6 +1434,60 @@ function adjustResponsiveLayout() {
     });
 }
 
+// FAQ Accordion functionality
+function initializeFAQ() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        
+        question.addEventListener('click', function() {
+            // Toggle current item
+            const isActive = item.classList.contains('active');
+            
+            // Optionally close other items (accordion behavior)
+            // Comment out these lines if you want multiple items open at once
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            
+            // Toggle current item
+            if (isActive) {
+                item.classList.remove('active');
+            } else {
+                item.classList.add('active');
+            }
+        });
+    });
+    
+    console.log('FAQ accordion initialized');
+}
+
+// Blog CTA functionality
+function initializeBlogCTA() {
+    // Blog section CTA button
+    const blogCtaButton = document.querySelector('.blog-cta .btn-primary');
+    if (blogCtaButton) {
+        blogCtaButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            goToSection(2); // Navigate to Contact section
+        });
+    }
+    
+    // FAQ section CTA button
+    const faqCtaButton = document.querySelector('.faq-cta .btn-primary');
+    if (faqCtaButton) {
+        faqCtaButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            goToSection(2); // Navigate to Contact section
+        });
+    }
+    
+    console.log('Blog and FAQ CTAs initialized');
+}
+
 // Console branding
 console.log('%c🚀 KWForce Enterprise AI Solutions', 'color: #F0841D; font-size: 20px; font-weight: bold;');
 console.log('%c⚡ Professional horizontal experience loaded', 'color: #059669; font-size: 14px; font-weight: 600;');
@@ -1381,3 +1496,4 @@ console.log('%c📧 EmailJS contact system ready (with mailto fallback)', 'color
 console.log('%c📱 Mobile image optimization system activated', 'color: #F0841D; font-size: 12px; font-style: italic;');
 console.log('%c🎯 Mobile-responsive design system activated', 'color: #8B5CF6; font-size: 12px; font-style: italic;');
 console.log('%c🌐 Desktop layout preserved, mobile optimized', 'color: #10B981; font-size: 12px; font-style: italic;');
+console.log('%c📰 Blog and FAQ sections loaded', 'color: #F0841D; font-size: 12px; font-style: italic;');
