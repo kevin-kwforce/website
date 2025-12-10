@@ -281,10 +281,6 @@ function initializeNavigation() {
             
             if (!isTransitioning && loadingComplete) {
                 const sectionIndex = parseInt(this.getAttribute('data-section')) || index;
-                
-                // Update URL using history.pushState
-                updateURLForSection(sectionIndex);
-                
                 goToSection(sectionIndex);
             }
         });
@@ -403,6 +399,10 @@ function initializeNavigation() {
     // Unified navigation function
     function goToSection(sectionIndex) {
         console.log('goToSection called:', sectionIndex, 'isMobileDevice:', isMobileDevice);
+        
+        // Update URL
+        updateURLForSection(sectionIndex);
+        
         if (isMobileDevice) {
             // On mobile, scroll to the section smoothly
             currentSection = sectionIndex;
@@ -655,18 +655,25 @@ function initializeFloatingNavigation() {
     floatingNavElements.forEach(element => {
         element.addEventListener('click', function(e) {
             const targetSection = this.getAttribute('data-nav');
+            let sectionIndex = 0;
             
             switch(targetSection) {
                 case 'home':
-                    navigateToSection(0);
+                    sectionIndex = 0;
                     break;
                 case 'about':
-                    navigateToSection(1);
+                    sectionIndex = 1;
                     break;
                 case 'contact':
-                    navigateToSection(2);
+                    sectionIndex = 2;
                     break;
             }
+            
+            // Update URL
+            updateURLForSection(sectionIndex);
+            
+            // Navigate to section
+            navigateToSection(sectionIndex);
             
             // Add a subtle click effect
             this.style.transform = 'scale(1.6)';
