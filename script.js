@@ -1234,14 +1234,14 @@ function checkInitialURL() {
     console.log('Checking initial URL:', pathname);
     
     // Determine target section based on URL
-    if (pathname === '/about' || pathname === '/about.html') {
+    if (pathname === '/about') {
         initialTargetSection = 1;
-    } else if (pathname === '/contact' || pathname === '/contact.html') {
+    } else if (pathname === '/contact') {
         initialTargetSection = 2;
-    } else if (pathname === '/blog' || pathname === '/blog.html' || pathname.startsWith('/blog/')) {
+    } else if (pathname === '/blog' || pathname.startsWith('/blog/')) {
         initialTargetSection = 3;
         // Note: Article will be shown by checkForArticleInURL() after intro
-    } else if (pathname === '/faq' || pathname === '/faq.html') {
+    } else if (pathname === '/faq') {
         initialTargetSection = 4;
     } else {
         initialTargetSection = 0; // Home
@@ -1256,9 +1256,9 @@ function initializeBrowserNavigation() {
     if (!history.state) {
         const pathname = window.location.pathname;
         let section = 0;
-        if (pathname === '/about' || pathname === '/about.html') {
+        if (pathname === '/about') {
             section = 1;
-        } else if (pathname === '/contact' || pathname === '/contact.html') {
+        } else if (pathname === '/contact') {
             section = 2;
         }
         history.replaceState({ section: section }, '', pathname);
@@ -1274,13 +1274,13 @@ function initializeBrowserNavigation() {
         
         if (pathname === '/' || pathname === '/index.html') {
             targetSection = 0;
-        } else if (pathname === '/about' || pathname === '/about.html') {
+        } else if (pathname === '/about') {
             targetSection = 1;
-        } else if (pathname === '/contact' || pathname === '/contact.html') {
+        } else if (pathname === '/contact') {
             targetSection = 2;
-        } else if (pathname === '/blog' || pathname === '/blog.html') {
+        } else if (pathname === '/blog') {
             targetSection = 3;
-        } else if (pathname === '/faq' || pathname === '/faq.html') {
+        } else if (pathname === '/faq') {
             targetSection = 4;
         }
         
