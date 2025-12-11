@@ -1272,7 +1272,7 @@ function initializeBrowserNavigation() {
         let targetSection = 0;
         const pathname = window.location.pathname;
         
-        if (pathname === '/' || pathname === '/index.html') {
+        if (pathname === '/') {
             targetSection = 0;
         } else if (pathname === '/about') {
             targetSection = 1;
