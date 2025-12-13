@@ -7,10 +7,20 @@
 
 html, body {
     height: 100%;
-    overflow: hidden;
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
     color: #f1f5f9;
+}
+
+/* Single-page: hide overflow for horizontal scrolling */
+body:has(.horizontal-wrapper) {
+    overflow: hidden;
+}
+
+/* Multi-page: allow vertical scrolling */
+body:not(:has(.horizontal-wrapper)) {
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 :root {
@@ -1426,6 +1436,21 @@ html, body {
 .main-content {
     opacity: 0;
     transition: opacity 1s ease;
+    width: 100%;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.main-content.show {
+    opacity: 1;
+}
+
+/* Multi-page: ensure main-content allows scrolling */
+.main-content:not(:has(.horizontal-wrapper)) {
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
 }
 
 /* Optimizaciones específicas para desktop */
@@ -1693,6 +1718,24 @@ html, body {
     transition: var(--transition-smooth);
     /* Mejorar rendimiento en desktop */
     will-change: transform, padding;
+}
+
+/* Multi-page layout styles */
+.page-content {
+    width: 100%;
+    min-height: calc(100vh - var(--nav-height));
+    position: relative;
+    padding-top: var(--nav-height);
+}
+
+.page-section {
+    width: 100%;
+    min-height: calc(100vh - var(--nav-height));
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 0;
 }
 
 /* Dynamic Home Section */

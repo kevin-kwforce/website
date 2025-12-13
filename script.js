@@ -1,6 +1,6 @@
 // Global variables
 let currentSection = 0;
-const totalSections = 5; // Updated to 5: Home, About, Contact, Blog, FAQ
+const totalSections = 3; // Home, About, Contact
 let isTransitioning = false;
 let loadingComplete = false;
 let isMobileDevice = false;
@@ -655,9 +655,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFloatingNavigation();
     initializeMobileOptimizations();
     initializeBrowserNavigation();
-    initializeFAQ();
-    initializeBlogCTA();
-    initializeBlogArticles();
     
     // Initialize comprehensive responsive design system
     initializeResponsiveDesign();
@@ -776,15 +773,28 @@ function initializeIntroSequence() {
     const introSequence = document.getElementById('introSequence');
     const mainContent = document.getElementById('mainContent');
     
-    // Skip intro if accessing /about or /contact directly
-    const skipIntro = initialTargetSection !== 0;
+    // Check if intro animation has already been shown in this session
+    const introShown = sessionStorage.getItem('kwforce_intro_shown');
+    
+    // Skip intro if:
+    // 1. Animation has already been shown in this session (for any page)
+    // 2. Accessing /about or /contact directly (not home)
+    const skipIntro = introShown === 'true' || initialTargetSection !== 0;
     
     if (skipIntro) {
-        console.log('Skipping intro, direct access to section:', initialTargetSection);
+        if (introShown === 'true') {
+            console.log('Skipping intro - already shown in this session');
+        } else {
+            console.log('Skipping intro, direct access to section:', initialTargetSection);
+        }
         
         // Hide intro immediately
-        introSequence.style.display = 'none';
-        mainContent.classList.add('show');
+        if (introSequence) {
+            introSequence.style.display = 'none';
+        }
+        if (mainContent) {
+            mainContent.classList.add('show');
+        }
         loadingComplete = true;
         
         // Set current section
@@ -830,8 +840,9 @@ function initializeIntroSequence() {
                 }
             }
             
-            // For mobile, scroll to the correct section
-            if (isMobileDevice) {
+            // For mobile, scroll to the correct section (only for single-page setup)
+            const wrapper = document.getElementById('horizontalWrapper');
+            if (isMobileDevice && wrapper) {
                 const sections = document.querySelectorAll('.h-section');
                 const mainContent = document.querySelector('.main-content');
                 
@@ -851,14 +862,25 @@ function initializeIntroSequence() {
         return; // Exit early, no intro animation
     }
     
-    // Normal intro sequence for home page
+    // Normal intro sequence for home page (only if not already shown)
     // Complete intro sequence after logo animation
     setTimeout(() => {
-        introSequence.classList.add('hidden');
+        if (introSequence) {
+            introSequence.classList.add('hidden');
+        }
+        
+        // Mark intro as shown in sessionStorage (only on home page)
+        if (initialTargetSection === 0) {
+            sessionStorage.setItem('kwforce_intro_shown', 'true');
+        }
         
         setTimeout(() => {
-            introSequence.style.display = 'none';
-            mainContent.classList.add('show');
+            if (introSequence) {
+                introSequence.style.display = 'none';
+            }
+            if (mainContent) {
+                mainContent.classList.add('show');
+            }
             loadingComplete = true;
         }, 1000);
     }, 3500);
@@ -869,6 +891,9 @@ function initializeNavigation() {
     const wrapper = document.getElementById('horizontalWrapper');
     const navItems = document.querySelectorAll('.nav-item');
     const navCta = document.querySelector('.nav-cta');
+    
+    // Check if this is a multi-page setup (no horizontalWrapper)
+    const isMultiPage = !wrapper;
     
     // Function to update URL based on section
     function updateURLForSection(sectionIndex) {
@@ -882,12 +907,6 @@ function initializeNavigation() {
                 break;
             case 2:
                 url = '/contact';
-                break;
-            case 3:
-                url = '/blog';
-                break;
-            case 4:
-                url = '/faq';
                 break;
         }
         
@@ -903,9 +922,7 @@ function initializeNavigation() {
         
         // Special case: maintain SEO-friendly URLs
         if ((currentPath === '/about' && sectionIndex === 1) || 
-            (currentPath === '/contact' && sectionIndex === 2) ||
-            (currentPath === '/blog' && sectionIndex === 3) ||
-            (currentPath === '/faq' && sectionIndex === 4)) {
+            (currentPath === '/contact' && sectionIndex === 2)) {
             console.log('Maintaining current URL for SEO:', currentPath);
             return;
         }
@@ -915,16 +932,18 @@ function initializeNavigation() {
     }
     
     // Wheel scroll navigation (only for desktop) - improved with scroll threshold
-    let wheelTimeout;
-    let wheelDelta = 0;
-    const wheelThreshold = 50; // Reduced threshold for more responsive navigation
-    
-    document.addEventListener('wheel', function(e) {
-        // Don't navigate if article is open
-        const articleView = document.getElementById('blogArticleView');
-        if (articleView && articleView.style.display === 'block') return;
+    // Only enable for single-page setup
+    if (!isMultiPage) {
+        let wheelTimeout;
+        let wheelDelta = 0;
+        const wheelThreshold = 50; // Reduced threshold for more responsive navigation
         
-        if (isTransitioning || !loadingComplete || isMobileDevice) return;
+        document.addEventListener('wheel', function(e) {
+            // Don't navigate if article is open
+            const articleView = document.getElementById('blogArticleView');
+            if (articleView && articleView.style.display === 'block') return;
+            
+            if (isTransitioning || !loadingComplete || isMobileDevice) return;
         
         // Get current section element
         const currentSectionElement = document.querySelector(`.h-section[data-section="${currentSection}"]`);
@@ -998,61 +1017,73 @@ function initializeNavigation() {
             }, 50);
         }
     }, { passive: false });
+    }
     
-    // Touch navigation
-    let touchStartX = 0;
-    
-    document.addEventListener('touchstart', function(e) {
-        touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    
-    document.addEventListener('touchend', function(e) {
-        // Don't navigate if article is open
-        const articleView = document.getElementById('blogArticleView');
-        if (articleView && articleView.style.display === 'block') return;
+    // Touch navigation (only for single-page setup)
+    if (!isMultiPage) {
+        let touchStartX = 0;
         
-        if (isTransitioning || !loadingComplete) return;
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
         
-        const touchEndX = e.changedTouches[0].clientX;
-        const deltaX = touchStartX - touchEndX;
-        
-        if (Math.abs(deltaX) > 50) {
-            if (deltaX > 0 && currentSection < totalSections - 1) {
-                navigateToSection(currentSection + 1);
-            } else if (deltaX < 0 && currentSection > 0) {
-                navigateToSection(currentSection - 1);
-            }
-        }
-    }, { passive: true });
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        // Don't navigate if article is open
-        const articleView = document.getElementById('blogArticleView');
-        if (articleView && articleView.style.display === 'block') return;
-        
-        if (isTransitioning || !loadingComplete) return;
-        
-        switch(e.key) {
-            case 'ArrowRight':
-            case ' ':
-                if (currentSection < totalSections - 1) {
-                    e.preventDefault();
+        document.addEventListener('touchend', function(e) {
+            // Don't navigate if article is open
+            const articleView = document.getElementById('blogArticleView');
+            if (articleView && articleView.style.display === 'block') return;
+            
+            if (isTransitioning || !loadingComplete) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const deltaX = touchStartX - touchEndX;
+            
+            if (Math.abs(deltaX) > 50) {
+                if (deltaX > 0 && currentSection < totalSections - 1) {
                     navigateToSection(currentSection + 1);
-                }
-                break;
-            case 'ArrowLeft':
-                if (currentSection > 0) {
-                    e.preventDefault();
+                } else if (deltaX < 0 && currentSection > 0) {
                     navigateToSection(currentSection - 1);
                 }
-                break;
-        }
-    });
+            }
+        }, { passive: true });
+    }
+    
+    // Keyboard navigation (only for single-page setup)
+    if (!isMultiPage) {
+        document.addEventListener('keydown', function(e) {
+            // Don't navigate if article is open
+            const articleView = document.getElementById('blogArticleView');
+            if (articleView && articleView.style.display === 'block') return;
+            
+            if (isTransitioning || !loadingComplete) return;
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                case ' ':
+                    if (currentSection < totalSections - 1) {
+                        e.preventDefault();
+                        navigateToSection(currentSection + 1);
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (currentSection > 0) {
+                        e.preventDefault();
+                        navigateToSection(currentSection - 1);
+                    }
+                    break;
+            }
+        });
+    }
     
     // Navigation items
     navItems.forEach((item, index) => {
         item.addEventListener('click', function(e) {
+            // For multi-page setup, allow normal navigation
+            if (isMultiPage) {
+                // Let the browser handle normal page navigation
+                return;
+            }
+            
+            // For single-page setup, prevent default and use SPA navigation
             e.preventDefault();
             
             if (!isTransitioning && loadingComplete) {
@@ -1065,6 +1096,13 @@ function initializeNavigation() {
     // CTA button - go to contact form (Get Consultation)
     if (navCta) {
         navCta.addEventListener('click', function(e) {
+            // For multi-page setup, allow normal navigation
+            if (isMultiPage) {
+                // Let the browser handle normal page navigation
+                return;
+            }
+            
+            // For single-page setup, prevent default and use SPA navigation
             e.preventDefault();
             console.log('Nav CTA clicked, isMobileDevice:', isMobileDevice);
             goToSection(2); // Contact section (index 2) - goes to form
@@ -1077,6 +1115,13 @@ function initializeNavigation() {
     
     ctaButtons.forEach(button => {
         button.addEventListener('click', function(e) {
+            // For multi-page setup, allow normal navigation (buttons should have href attributes)
+            if (isMultiPage) {
+                // Let the browser handle normal page navigation
+                return;
+            }
+            
+            // For single-page setup, prevent default and use SPA navigation
             e.preventDefault();
             console.log('Primary button clicked, isMobileDevice:', isMobileDevice);
             goToSection(2); // Contact section
@@ -1085,6 +1130,13 @@ function initializeNavigation() {
     
     secondaryButtons.forEach(button => {
         button.addEventListener('click', function(e) {
+            // For multi-page setup, allow normal navigation (buttons should have href attributes)
+            if (isMultiPage) {
+                // Let the browser handle normal page navigation
+                return;
+            }
+            
+            // For single-page setup, prevent default and use SPA navigation
             e.preventDefault();
             console.log('Secondary button clicked:', this.textContent, 'isMobileDevice:', isMobileDevice);
             if (this.textContent.includes('Learn More')) {
@@ -1200,8 +1252,12 @@ function initializeNavigation() {
         }
     }
     
-    // Function to scroll to sections on mobile
+    // Function to scroll to sections on mobile (only for single-page setup)
     function scrollToSectionMobile(sectionIndex) {
+        const wrapper = document.getElementById('horizontalWrapper');
+        // Only scroll if this is a single-page setup
+        if (!wrapper) return;
+        
         const sections = document.querySelectorAll('.h-section');
         const mainContent = document.querySelector('.main-content');
         
@@ -1238,11 +1294,6 @@ function checkInitialURL() {
         initialTargetSection = 1;
     } else if (pathname === '/contact') {
         initialTargetSection = 2;
-    } else if (pathname === '/blog' || pathname.startsWith('/blog/')) {
-        initialTargetSection = 3;
-        // Note: Article will be shown by checkForArticleInURL() after intro
-    } else if (pathname === '/faq') {
-        initialTargetSection = 4;
     } else {
         initialTargetSection = 0; // Home
     }
@@ -1278,10 +1329,6 @@ function initializeBrowserNavigation() {
             targetSection = 1;
         } else if (pathname === '/contact') {
             targetSection = 2;
-        } else if (pathname === '/blog') {
-            targetSection = 3;
-        } else if (pathname === '/faq') {
-            targetSection = 4;
         }
         
         console.log('Navigating to section:', targetSection, 'from URL:', pathname);
@@ -1738,6 +1785,13 @@ function initializeMobileScrollTracking() {
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
     
+    // Only initialize scroll tracking for single-page setup
+    const wrapper = document.getElementById('horizontalWrapper');
+    if (!wrapper) {
+        // Multi-page setup - allow normal scrolling, no automatic navigation updates
+        return;
+    }
+    
     let hasScrolled = false;
     
     mainContent.addEventListener('scroll', function() {
@@ -1767,6 +1821,12 @@ function initializeMobileScrollTracking() {
 
 // Function to update active navigation based on visible content
 function updateActiveNavigationFromScroll(scrollTop, clientHeight) {
+    // Only work for single-page setup
+    const wrapper = document.getElementById('horizontalWrapper');
+    if (!wrapper) {
+        return; // Multi-page setup - don't update navigation from scroll
+    }
+    
     if (!isMobileDevice) {
         console.log('Not mobile device, returning');
         return;
