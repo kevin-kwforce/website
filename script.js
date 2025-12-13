@@ -895,6 +895,23 @@ function initializeNavigation() {
     // Check if this is a multi-page setup (no horizontalWrapper)
     const isMultiPage = !wrapper;
     
+    // For multi-page setup, update active nav item based on current URL
+    if (isMultiPage) {
+        const currentPath = window.location.pathname;
+        navItems.forEach((item) => {
+            const href = item.getAttribute('href');
+            // Remove active class from all items first
+            item.classList.remove('active');
+            // Add active class if href matches current path
+            // Normalize paths: remove trailing slashes and handle root
+            const normalizedHref = href === '/' ? '/' : href.replace(/\/$/, '');
+            const normalizedPath = currentPath === '/' ? '/' : currentPath.replace(/\/$/, '');
+            if (normalizedHref === normalizedPath) {
+                item.classList.add('active');
+            }
+        });
+    }
+    
     // Function to update URL based on section
     function updateURLForSection(sectionIndex) {
         let url = '/';
@@ -906,6 +923,9 @@ function initializeNavigation() {
                 url = '/about';
                 break;
             case 2:
+                url = '/solutions';
+                break;
+            case 3:
                 url = '/contact';
                 break;
         }
@@ -1292,8 +1312,10 @@ function checkInitialURL() {
     // Determine target section based on URL
     if (pathname === '/about') {
         initialTargetSection = 1;
-    } else if (pathname === '/contact') {
+    } else if (pathname === '/solutions') {
         initialTargetSection = 2;
+    } else if (pathname === '/contact') {
+        initialTargetSection = 3;
     } else {
         initialTargetSection = 0; // Home
     }
@@ -1309,8 +1331,10 @@ function initializeBrowserNavigation() {
         let section = 0;
         if (pathname === '/about') {
             section = 1;
-        } else if (pathname === '/contact') {
+        } else if (pathname === '/solutions') {
             section = 2;
+        } else if (pathname === '/contact') {
+            section = 3;
         }
         history.replaceState({ section: section }, '', pathname);
     }
@@ -1327,8 +1351,10 @@ function initializeBrowserNavigation() {
             targetSection = 0;
         } else if (pathname === '/about') {
             targetSection = 1;
-        } else if (pathname === '/contact') {
+        } else if (pathname === '/solutions') {
             targetSection = 2;
+        } else if (pathname === '/contact') {
+            targetSection = 3;
         }
         
         console.log('Navigating to section:', targetSection, 'from URL:', pathname);
