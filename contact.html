@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="is-multi-page">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,6 +42,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        // Marcar multipage lo antes posible (antes de cargar CSS/JS)
+        document.documentElement.classList.add('is-multi-page');
+    </script>
     
     <!-- Schema.org JSON-LD -->
     <script type="application/ld+json">
@@ -53,8 +57,10 @@
         "description": "Get in touch with KWForce for enterprise AI solutions."
     }
     </script>
+    
+    <!-- Scroll multipage se gestiona globalmente en script.js -->
 </head>
-<body>
+<body class="is-multi-page">
     <!-- Intro Sequence -->
     <div class="intro-sequence" id="introSequence">
         <!-- AI Sunrise Animation -->

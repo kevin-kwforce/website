@@ -6,6 +6,13 @@ let loadingComplete = false;
 let isMobileDevice = false;
 let initialTargetSection = 0; // Store initial URL target section
 
+// Strip legacy blog/faq to avoid heavy parsing/loading
+window.blogArticles = {};
+window.showArticle = function() {};
+
+// Scroll configuration removed - will be reimplemented later
+
+/* BEGIN REMOVED BLOG/FAQ CODE
 // ============================================
 // BLOG ARTICLE SYSTEM - Must be defined early for initializeIntroSequence
 // ============================================
@@ -630,8 +637,7 @@ window.showArticle = function(articleId) {
     if (blogSection) blogSection.style.display = 'none';
     articleView.style.display = 'block';
     
-    // Scroll to top
-    articleView.scrollTop = 0;
+    // Scroll removed
     
     // Update URL
     const newURL = `/blog/${articleId}`;
@@ -641,11 +647,70 @@ window.showArticle = function(articleId) {
     
     console.log('Article displayed:', articleId);
 };
+END REMOVED BLOG/FAQ CODE */
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Check URL first to set initial target section
     checkInitialURL();
+    
+    // Check current page path
+    const pathname = window.location.pathname;
+    const isHomePage = pathname === '/' || pathname === '/index.html';
+    const introShown = sessionStorage.getItem('kwforce_intro_shown');
+    const willShowAnimation = isHomePage && !introShown;
+    
+    // Scroll configuration removed - will be reimplemented later
+    const wrapper = document.getElementById('horizontalWrapper');
+    if (!isHomePage && !wrapper) {
+        document.body.classList.add('is-multi-page');
+        document.documentElement.classList.add('is-multi-page');
+        const mainContent = document.getElementById('mainContent');
+        if (mainContent) {
+            mainContent.style.opacity = '1';
+            mainContent.style.visibility = 'visible';
+            mainContent.style.pointerEvents = 'auto';
+        }
+        const introSequence = document.getElementById('introSequence');
+        if (introSequence) {
+            introSequence.style.display = 'none';
+            introSequence.style.pointerEvents = 'none';
+            introSequence.style.opacity = '0';
+        }
+    }
+    
+    if (!isHomePage) {
+        document.body.classList.remove('is-home-loading');
+        const mainContent = document.getElementById('mainContent');
+        if (mainContent) {
+            mainContent.style.opacity = '1';
+            mainContent.style.visibility = 'visible';
+            mainContent.classList.add('show');
+            mainContent.style.pointerEvents = 'auto';
+        }
+        const introSequence = document.getElementById('introSequence');
+        if (introSequence) {
+            introSequence.style.display = 'none';
+            introSequence.style.pointerEvents = 'none';
+            introSequence.style.opacity = '0';
+        }
+    } else if (willShowAnimation) {
+        document.body.classList.add('is-home-loading');
+        const mainContent = document.getElementById('mainContent');
+        if (mainContent) {
+            mainContent.style.opacity = '0';
+            mainContent.style.visibility = 'hidden';
+            mainContent.style.pointerEvents = 'none';
+        }
+    } else {
+        document.body.classList.remove('is-home-loading');
+        const mainContent = document.getElementById('mainContent');
+        if (mainContent) {
+            mainContent.style.opacity = '1';
+            mainContent.style.visibility = 'visible';
+            mainContent.style.pointerEvents = 'auto';
+        }
+    }
     
     detectMobileDevice();
     initializeIntroSequence();
@@ -659,6 +724,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize comprehensive responsive design system
     initializeResponsiveDesign();
     adjustResponsiveLayout();
+    
+    // Scroll configuration removed - will be reimplemented later
     
     // Optimize image when it loads
     const heroImage = document.querySelector('.hero-image');
@@ -681,6 +748,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Scroll configuration removed - will be reimplemented later
+
+// Scroll configuration removed - will be reimplemented later
 
 // Mobile Device Detection
 function detectMobileDevice() {
@@ -773,117 +844,113 @@ function initializeIntroSequence() {
     const introSequence = document.getElementById('introSequence');
     const mainContent = document.getElementById('mainContent');
     
-    // Check if intro animation has already been shown in this session
-    const introShown = sessionStorage.getItem('kwforce_intro_shown');
+    // Check current page path
+    const pathname = window.location.pathname;
+    const isHomePage = pathname === '/' || pathname === '/index.html';
     
-    // Skip intro if:
-    // 1. Animation has already been shown in this session (for any page)
-    // 2. Accessing /about or /contact directly (not home)
-    const skipIntro = introShown === 'true' || initialTargetSection !== 0;
-    
-    if (skipIntro) {
-        if (introShown === 'true') {
-            console.log('Skipping intro - already shown in this session');
-        } else {
-            console.log('Skipping intro, direct access to section:', initialTargetSection);
-        }
-        
-        // Hide intro immediately
+    // For non-home pages (about, solutions, contact), always skip intro and show content immediately
+    if (!isHomePage) {
         if (introSequence) {
             introSequence.style.display = 'none';
         }
+
         if (mainContent) {
             mainContent.classList.add('show');
+            mainContent.style.opacity = '1';
         }
-        loadingComplete = true;
         
-        // Set current section
+        loadingComplete = true;
         currentSection = initialTargetSection;
         
-        // Pre-position the horizontal wrapper
-        const wrapper = document.getElementById('horizontalWrapper');
-        if (wrapper && !isMobileDevice) {
-            const translateX = -initialTargetSection * 100;
-            wrapper.style.transform = `translateX(${translateX}vw)`;
-            wrapper.style.transition = 'none';
+        // Scroll configuration removed
+        if (mainContent) {
         }
-        
-        // Update navigation immediately
+
         setTimeout(() => {
-            // Update nav items
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach((item, index) => {
                 item.classList.toggle('active', index === initialTargetSection);
             });
-            
-            // Update mobile indicators
-            const indicators = document.querySelectorAll('.nav-indicator');
-            indicators.forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === initialTargetSection);
-            });
-            
-            // Check if should show an article (for /blog/article-name URLs)
-            const pathname = window.location.pathname;
-            if (pathname.startsWith('/blog/')) {
-                const articleId = pathname.substring(6); // Remove '/blog/'
-                if (articleId && window.blogArticles && window.blogArticles[articleId]) {
-                    console.log('Direct article access detected:', articleId);
-                    // Wait longer to ensure all DOM elements are ready
-                    setTimeout(() => {
-                        console.log('Attempting to show article:', articleId);
-                        if (typeof window.showArticle === 'function') {
-                            window.showArticle(articleId);
-                        } else {
-                            console.error('showArticle function not available');
-                        }
-                    }, 500);
-                }
-            }
-            
-            // For mobile, scroll to the correct section (only for single-page setup)
-            const wrapper = document.getElementById('horizontalWrapper');
-            if (isMobileDevice && wrapper) {
-                const sections = document.querySelectorAll('.h-section');
-                const mainContent = document.querySelector('.main-content');
-                
-                if (sections[initialTargetSection] && mainContent) {
-                    const targetSection = sections[initialTargetSection];
-                    const offsetTop = targetSection.offsetTop;
-                    const scrollOffset = offsetTop - 20;
-                    
-                    mainContent.scrollTo({
-                        top: Math.max(0, scrollOffset),
-                        behavior: 'auto'
-                    });
-                }
-            }
         }, 10);
+
+        return;
+    }
+
+    // Home page: check if we should show intro animation
+    // Only show intro animation on first visit
+    const introShown = sessionStorage.getItem('kwforce_intro_shown');
+    const shouldShowIntro = !introShown;
+
+    if (!shouldShowIntro) {
+        // Skip intro: already shown
+        if (introSequence) {
+            introSequence.style.display = 'none';
+        }
+
+        if (mainContent) {
+            mainContent.classList.add('show');
+            mainContent.style.opacity = '1';
+            mainContent.style.visibility = 'visible';
+        }
         
-        return; // Exit early, no intro animation
+        // Scroll configuration removed
+        document.body.classList.remove('is-home-loading');
+
+        loadingComplete = true;
+        currentSection = 0;
+        
+        return;
     }
     
-    // Normal intro sequence for home page (only if not already shown)
-    // Complete intro sequence after logo animation
-    setTimeout(() => {
+    // Normal intro animation (only for home page, first visit)
         if (introSequence) {
-            introSequence.classList.add('hidden');
+        // Hide main content completely during animation
+        if (mainContent) {
+            mainContent.style.opacity = '0';
+            mainContent.style.visibility = 'hidden';
+            mainContent.style.pointerEvents = 'none';
         }
         
-        // Mark intro as shown in sessionStorage (only on home page)
-        if (initialTargetSection === 0) {
-            sessionStorage.setItem('kwforce_intro_shown', 'true');
-        }
+        // Scroll configuration removed
+        
+        introSequence.classList.add('active');
         
         setTimeout(() => {
-            if (introSequence) {
-                introSequence.style.display = 'none';
-            }
+            introSequence.classList.add('fade-out');
+
+            setTimeout(() => {
+                // Smooth transition: fade out intro, then show content
+                introSequence.style.opacity = '0';
+                introSequence.style.pointerEvents = 'none';
+                
+                // Scroll configuration removed
+                
             if (mainContent) {
+                    // Show main content smoothly
+                    mainContent.style.visibility = 'visible';
+                    mainContent.style.pointerEvents = 'auto';
                 mainContent.classList.add('show');
-            }
+                    // Fade in main content smoothly
+                    setTimeout(() => {
+                        mainContent.style.transition = 'opacity 0.8s ease-in-out';
+                        mainContent.style.opacity = '1';
+                    }, 50);
+                }
+                document.body.classList.remove('is-home-loading');
+
             loadingComplete = true;
+                sessionStorage.setItem('kwforce_intro_shown', 'true');
+                
+                // Hide intro sequence after fade-out completes
+                setTimeout(() => {
+                    introSequence.style.display = 'none';
         }, 1000);
-    }, 3500);
+
+            }, 2500);
+        }, 2200);
+    } else {
+        loadingComplete = true;
+    }
 }
 
 // Navigation System
@@ -951,121 +1018,7 @@ function initializeNavigation() {
         history.pushState({ section: sectionIndex }, '', url);
     }
     
-    // Wheel scroll navigation (only for desktop) - improved with scroll threshold
-    // Only enable for single-page setup
-    if (!isMultiPage) {
-        let wheelTimeout;
-        let wheelDelta = 0;
-        const wheelThreshold = 50; // Reduced threshold for more responsive navigation
-        
-        document.addEventListener('wheel', function(e) {
-            // Don't navigate if article is open
-            const articleView = document.getElementById('blogArticleView');
-            if (articleView && articleView.style.display === 'block') return;
-            
-            if (isTransitioning || !loadingComplete || isMobileDevice) return;
-        
-        // Get current section element
-        const currentSectionElement = document.querySelector(`.h-section[data-section="${currentSection}"]`);
-        if (currentSectionElement) {
-            const hasOverflow = currentSectionElement.scrollHeight > currentSectionElement.clientHeight;
-            const isAtTop = currentSectionElement.scrollTop <= 1; // Small tolerance for floating point precision
-            const isAtBottom = currentSectionElement.scrollTop + currentSectionElement.clientHeight >= currentSectionElement.scrollHeight - 5; // Small tolerance
-            
-            // Debug info for scroll navigation
-            if (e.deltaY < 0 && currentSection > 0) {
-                console.log('Scroll up detected:', {
-                    currentSection,
-                    hasOverflow,
-                    isAtTop,
-                    scrollTop: currentSectionElement.scrollTop,
-                    scrollHeight: currentSectionElement.scrollHeight,
-                    clientHeight: currentSectionElement.clientHeight
-                });
-            }
-            
-            // Handle scroll within section vs section navigation
-            if (hasOverflow) {
-                // If scrolling down and not at bottom, allow normal scroll
-                if (e.deltaY > 0 && !isAtBottom) {
-                    return; // Allow normal scrolling down within the section
-                }
-                // If scrolling up and not at top, allow normal scroll
-                if (e.deltaY < 0 && !isAtTop) {
-                    return; // Allow normal scrolling up within the section
-                }
-            }
-            
-            // At this point, we're either at the boundary of the section or there's no overflow
-            // So we should handle section navigation
-            
-            // Prevent default to handle section navigation
-            e.preventDefault();
-            
-            // Accumulate wheel delta to prevent accidental navigation
-            wheelDelta += e.deltaY;
-            
-            clearTimeout(wheelTimeout);
-            wheelTimeout = setTimeout(() => {
-                if (Math.abs(wheelDelta) >= wheelThreshold) {
-                    // Navigate to next section (scroll down)
-                    if (wheelDelta > 0 && currentSection < totalSections - 1) {
-                        navigateToSection(currentSection + 1);
-                    }
-                    // Navigate to previous section (scroll up)
-                    else if (wheelDelta < 0 && currentSection > 0) {
-                        navigateToSection(currentSection - 1);
-                    }
-                }
-                wheelDelta = 0;
-            }, 50);
-        } else {
-            // Fallback: if no current section found, prevent default and handle navigation
-            e.preventDefault();
-            wheelDelta += e.deltaY;
-            
-            clearTimeout(wheelTimeout);
-            wheelTimeout = setTimeout(() => {
-                if (Math.abs(wheelDelta) >= wheelThreshold) {
-                    if (wheelDelta > 0 && currentSection < totalSections - 1) {
-                        navigateToSection(currentSection + 1);
-                    } else if (wheelDelta < 0 && currentSection > 0) {
-                        navigateToSection(currentSection - 1);
-                    }
-                }
-                wheelDelta = 0;
-            }, 50);
-        }
-    }, { passive: false });
-    }
-    
-    // Touch navigation (only for single-page setup)
-    if (!isMultiPage) {
-        let touchStartX = 0;
-        
-        document.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-        }, { passive: true });
-        
-        document.addEventListener('touchend', function(e) {
-            // Don't navigate if article is open
-            const articleView = document.getElementById('blogArticleView');
-            if (articleView && articleView.style.display === 'block') return;
-            
-            if (isTransitioning || !loadingComplete) return;
-            
-            const touchEndX = e.changedTouches[0].clientX;
-            const deltaX = touchStartX - touchEndX;
-            
-            if (Math.abs(deltaX) > 50) {
-                if (deltaX > 0 && currentSection < totalSections - 1) {
-                    navigateToSection(currentSection + 1);
-                } else if (deltaX < 0 && currentSection > 0) {
-                    navigateToSection(currentSection - 1);
-                }
-            }
-        }, { passive: true });
-    }
+// Wheel scroll navigation removed - multipage setup uses normal vertical scrolling
     
     // Keyboard navigation (only for single-page setup)
     if (!isMultiPage) {
@@ -1727,56 +1680,11 @@ function hideFloatingNavigationOnMobile() {
 
 
 function modifyTouchNavigation() {
-    // Implement smooth scroll tracking for mobile
-    if (!isMobileDevice) return;
-    
+    // Touch navigation removed - multipage setup uses normal vertical scrolling
+    // Only initialize mobile scroll tracking if needed
+    if (isMobileDevice) {
     initializeMobileScrollTracking();
-    
-    // Optional: Add edge swipe navigation for quick section jumps
-    let touchStartY = 0;
-    let touchStartX = 0;
-    
-    document.addEventListener('touchstart', function(e) {
-        touchStartY = e.touches[0].clientY;
-        touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-    
-    document.addEventListener('touchend', function(e) {
-        // Don't navigate if article is open
-        const articleView = document.getElementById('blogArticleView');
-        if (articleView && articleView.style.display === 'block') return;
-        
-        if (isTransitioning || !loadingComplete) return;
-        
-        const touchEndY = e.changedTouches[0].clientY;
-        const touchEndX = e.changedTouches[0].clientX;
-        const deltaY = touchStartY - touchEndY;
-        const deltaX = Math.abs(touchStartX - touchEndX);
-        
-        // Only trigger section navigation for very long swipes from screen edge
-        const isEdgeSwipe = touchStartX < 50 || touchStartX > window.innerWidth - 50;
-        const isLongSwipe = Math.abs(deltaY) > 150;
-        const isVerticalSwipe = deltaX < 50;
-        
-        if (isEdgeSwipe && isLongSwipe && isVerticalSwipe) {
-            if (deltaY > 0 && currentSection < totalSections - 1) {
-                goToSection(currentSection + 1);
-            } else if (deltaY < 0 && currentSection > 0) {
-                goToSection(currentSection - 1);
-            }
-        }
-        
-        // Add momentum scrolling for better mobile experience
-        const velocity = Math.abs(deltaY) / 100; // Calculate swipe velocity
-        if (velocity > 2 && !isEdgeSwipe) {
-            // Fast swipes get momentum scrolling
-            const momentum = Math.min(velocity * 50, 200);
-            mainContent.scrollBy({
-                top: deltaY > 0 ? momentum : -momentum,
-                behavior: 'smooth'
-            });
-        }
-    }, { passive: true });
+    }
 }
 
 function addMobileStyles() {
@@ -1811,7 +1719,7 @@ function initializeMobileScrollTracking() {
     const mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
     
-    // Only initialize scroll tracking for single-page setup
+    // Multi-page setup - allow normal scrolling, no automatic navigation updates
     const wrapper = document.getElementById('horizontalWrapper');
     if (!wrapper) {
         // Multi-page setup - allow normal scrolling, no automatic navigation updates
@@ -2192,6 +2100,7 @@ function adjustResponsiveLayout() {
     });
 }
 
+/* FAQ/BLOG REMOVED
 // FAQ Accordion functionality
 function initializeFAQ() {
     const faqItems = document.querySelectorAll('.faq-item');
@@ -2350,10 +2259,11 @@ function checkForArticleInURL() {
 
 // Console branding
 console.log('%c🚀 KWForce Enterprise AI Solutions', 'color: #F0841D; font-size: 20px; font-weight: bold;');
-console.log('%c⚡ Professional horizontal experience loaded', 'color: #059669; font-size: 14px; font-weight: 600;');
+console.log('%c⚡ Professional multipage experience loaded', 'color: #059669; font-size: 14px; font-weight: 600;');
 console.log('%c✨ Hidden floating navigation activated', 'color: #F0841D; font-size: 12px; font-style: italic;');
 console.log('%c📧 EmailJS contact system ready (with mailto fallback)', 'color: #6366f1; font-size: 12px; font-style: italic;');
 console.log('%c📱 Mobile image optimization system activated', 'color: #F0841D; font-size: 12px; font-style: italic;');
 console.log('%c🎯 Mobile-responsive design system activated', 'color: #8B5CF6; font-size: 12px; font-style: italic;');
 console.log('%c🌐 Desktop layout preserved, mobile optimized', 'color: #10B981; font-size: 12px; font-style: italic;');
 console.log('%c📰 Blog and FAQ sections loaded', 'color: #F0841D; font-size: 12px; font-style: italic;');
+*/

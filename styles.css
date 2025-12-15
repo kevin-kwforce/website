@@ -12,16 +12,7 @@ html, body {
     color: #f1f5f9;
 }
 
-/* Single-page: hide overflow for horizontal scrolling */
-body:has(.horizontal-wrapper) {
-    overflow: hidden;
-}
-
-/* Multi-page: allow vertical scrolling */
-body:not(:has(.horizontal-wrapper)) {
-    overflow-y: auto;
-    overflow-x: hidden;
-}
+/* Scroll configuration removed - will be reimplemented later */
 
 :root {
     --primary-orange: #F0841D;
@@ -1064,10 +1055,10 @@ body:not(:has(.horizontal-wrapper)) {
     width: 100vw;
     height: 100vh;
     background: linear-gradient(135deg, 
-        rgba(0, 0, 0, 0.95) 0%, 
-        rgba(15, 23, 42, 0.95) 30%,
-        rgba(30, 41, 59, 0.95) 70%, 
-        rgba(0, 0, 0, 0.95) 100%
+        rgba(0, 0, 0, 1) 0%, 
+        rgba(15, 23, 42, 1) 30%,
+        rgba(30, 41, 59, 1) 70%, 
+        rgba(0, 0, 0, 1) 100%
     );
     display: flex;
     flex-direction: column;
@@ -1075,7 +1066,8 @@ body:not(:has(.horizontal-wrapper)) {
     justify-content: center;
     z-index: 10000;
     opacity: 1;
-    transition: opacity 1s ease;
+    transition: opacity 1.2s ease-in-out;
+    pointer-events: auto;
 }
 
 .intro-sequence.hidden {
@@ -1435,22 +1427,53 @@ body:not(:has(.horizontal-wrapper)) {
 /* Main Content */
 .main-content {
     opacity: 0;
-    transition: opacity 1s ease;
+    visibility: hidden;
+    transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
     width: 100%;
     min-height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 
 .main-content.show {
     opacity: 1;
+    visibility: visible;
 }
 
-/* Multi-page: ensure main-content allows scrolling */
-.main-content:not(:has(.horizontal-wrapper)) {
-    overflow-y: auto;
-    height: auto;
-    min-height: 100vh;
+/* Scroll configuration removed - will be reimplemented later */
+html.is-multi-page,
+body.is-multi-page {
+    height: auto !important;
+    min-height: 100vh !important;
+}
+
+.is-multi-page .main-content {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: none;
+    /* NO scroll en main-content - solo en html/body */
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure page containers stretch */
+.is-multi-page .page-content,
+.is-multi-page .page-section {
+    min-height: calc(100vh - var(--nav-height));
+    overflow: visible;
+    pointer-events: auto;
+}
+
+/* Mientras la animación del home está activa, oculta el contenido */
+.is-home-loading .main-content {
+    display: none !important;
+}
+
+/* En multipage, oculta cualquier resto de la intro */
+.is-multi-page .intro-sequence {
+    display: none !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
 }
 
 /* Optimizaciones específicas para desktop */
@@ -1651,70 +1674,34 @@ body:not(:has(.horizontal-wrapper)) {
     width: 100vw;
     height: calc(100vh - var(--nav-height));
     position: relative;
-    overflow-y: auto;
-    overflow-x: hidden;
+    /* Scroll configuration removed */
     /* Mejorar rendimiento en desktop */
     will-change: transform;
     transform-style: preserve-3d;
     backface-visibility: hidden;
-    /* Ensure smooth scrolling within sections */
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    /* Prevent scroll position from affecting transitions */
-    scroll-snap-type: none;
     /* Prevent layout shifts during transitions */
     flex-shrink: 0;
     flex-grow: 0;
 }
 
-/* Desktop: Ensure contact section is fully scrollable */
+/* Scroll configuration removed - will be reimplemented later */
+.h-section[data-section="1"],
 .h-section[data-section="2"],
 .h-section[data-section="3"],
 .h-section[data-section="4"] {
-    /* Make sure these sections can scroll if content overflows */
-    overflow-y: auto !important;
-    /* Ensure proper height calculation */
     height: calc(100vh - var(--nav-height)) !important;
-    /* Better scrolling performance */
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-orange) transparent;
-}
-
-/* Desktop: Webkit scrollbar styling for scrollable sections */
-.h-section[data-section="2"]::-webkit-scrollbar,
-.h-section[data-section="3"]::-webkit-scrollbar,
-.h-section[data-section="4"]::-webkit-scrollbar {
-    width: 8px;
-}
-
-.h-section[data-section="2"]::-webkit-scrollbar-track,
-.h-section[data-section="3"]::-webkit-scrollbar-track,
-.h-section[data-section="4"]::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-}
-
-.h-section[data-section="2"]::-webkit-scrollbar-thumb,
-.h-section[data-section="3"]::-webkit-scrollbar-thumb,
-.h-section[data-section="4"]::-webkit-scrollbar-thumb {
-    background: var(--primary-orange);
-    border-radius: 4px;
-}
-
-.h-section[data-section="2"]::-webkit-scrollbar-thumb:hover,
-.h-section[data-section="3"]::-webkit-scrollbar-thumb:hover,
-.h-section[data-section="4"]::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-orange-hover);
 }
 
 .container {
     max-width: var(--container-max-width);
     margin: 0 auto;
     padding: var(--container-padding);
-    min-height: 100%;
+    /* Se recomienda quitar o comentar min-height: 100%; */
+    /* min-height: 100%; */ 
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* ¡CAMBIO CLAVE! Esto era el problema. Lo quitamos o lo comentamos */
+    /* justify-content: center; */
     transition: var(--transition-smooth);
     /* Mejorar rendimiento en desktop */
     will-change: transform, padding;
@@ -1734,8 +1721,8 @@ body:not(:has(.horizontal-wrapper)) {
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     padding: 2rem 0;
+    /* scroll-margin-top removed */
 }
 
 /* Dynamic Home Section */
@@ -3608,15 +3595,7 @@ body:not(:has(.horizontal-wrapper)) {
     flex-direction: column;
 }
 
-.mobile-device .main-content {
-    overflow-y: auto;
-    height: 100vh;
-    /* Simple mobile scroll */
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    /* Ensure scroll works everywhere */
-    pointer-events: auto;
-}
+/* Mobile scroll handled above - removed duplicate */
 
 /* Mobile: Adjust container for better mobile layout */
 .mobile-device .container {
@@ -3966,16 +3945,12 @@ body:not(:has(.horizontal-wrapper)) {
     pointer-events: none;
 }
 
-/* Mobile: Clean scroll configuration */
-.mobile-device .main-content {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+/* Scroll configuration removed - will be reimplemented later */
+.mobile-device body,
+.mobile-device html {
 }
 
-/* Mobile: Simple body scroll */
-.mobile-device body {
-    overflow: auto;
+.mobile-device .main-content {
 }
 
 .mobile-device .h-section {
@@ -4395,9 +4370,7 @@ body:not(:has(.horizontal-wrapper)) {
     }
 }
 
-/* ===================================
-   BLOG SECTION STYLES
-   =================================== */
+/* BLOG/FAQ STYLES REMOVED */
 
 .icon-blog {
     font-size: 3rem;
@@ -5094,4 +5067,10 @@ body:not(:has(.horizontal-wrapper)) {
     .article-cta h3 {
         font-size: 1.5rem;
     }
+}
+/* Multi-page: page sections - no scroll interference */
+.is-multi-page .page-section {
+    height: auto !important;
+    overflow: visible !important;
+    min-height: calc(100vh - var(--nav-height)) !important;
 }
