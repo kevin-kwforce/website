@@ -891,8 +891,8 @@ function initializeIntroSequence() {
             mainContent.classList.add('show');
             mainContent.style.opacity = '1';
             mainContent.style.visibility = 'visible';
-        }
-        
+            }
+            
         // Scroll configuration removed
         document.body.classList.remove('is-home-loading');
 
@@ -900,7 +900,7 @@ function initializeIntroSequence() {
         currentSection = 0;
         
         return;
-    }
+                }
     
     // Normal intro animation (only for home page, first visit)
         if (introSequence) {
@@ -935,7 +935,7 @@ function initializeIntroSequence() {
                         mainContent.style.transition = 'opacity 0.8s ease-in-out';
                         mainContent.style.opacity = '1';
                     }, 50);
-                }
+            }
                 document.body.classList.remove('is-home-loading');
 
             loadingComplete = true;
